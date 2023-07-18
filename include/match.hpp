@@ -2,23 +2,48 @@
 #ifndef __NSTD_MATCH_HPP__
 #define __NSTD_MATCH_HPP__
 
-#include <type_traits>
+#include <assert.h>
 #include <type_magic.hpp>
 #include <result.hpp>
+
 namespace nstd {
 
 /* The first implementations of MATCH like rust.
  * This approach is implemented through macros which use switch actually.
- * Note: currently, only 30 branches are supported for matching.
+ * Note: currently, only 30 branches are supported for matching and we don't support match gurd.
  */
+
+template <int N, typename T>
+struct MatchGet
+{
+    static decltype(auto) match_get(T&& t, nstd::Int<N> n) { return t.get(n); }
+}
+
+template <int N>
+struct MatchGet<N, int>
+{
+    static decltype(auto) match_get(const int& t, nstd::Int<N>)
+    {
+        assert(N == t);
+        return t;
+    }
+}
+
+#define MATCH_PP_EMPTY
 #define MATCH_CONCAT_IMPL(A, B) A##B
 #define MATCH_CONCAT(A, B) MATCH_CONCAT_IMPL(A, B)
 
-#define MATCH_EXPAND(...) __VA_ARGS__
-#define MATCH_DEFAULT_SYMBOL_
-
-
-// #define MATCH_DEFAULT_SYMBOL(PREFIX, SYMBOL) MATCH_CONCAT(PREFIX, SYMBOL)
+#define MATCH_DEFAULT_SYMBOL_ _, 1
+#define MATCH_CASE_OR_DEFAULT_IMPL_0(m, c, ...)                                                \
+    case c:                                                                                    \
+        return __VA_ARGS__(MatchGet<static_cast<int>(c), pure_type_t<decltype(m)>>::match_get( \
+            std::move(m), nstd::Int<static_cast<int>(c)>{}));
+#define MATCH_CASE_OR_DEFAULT_CONDITION(a, b, ...) b
+#define MATCH_CASE_OR_DEFAULT_IMPL_1(m, c, ...) \
+    default:                                    \
+        return __VA_ARGS__();
+#define MATCH_CASE_OR_DEFAULT_CHECK(...) MATCH_CASE_OR_DEFAULT_CONDITION(__VA_ARGS__, 0)
+#define MATCH_CASE_OR_DEFAULT_IMPL(condition) MATCH_CONCAT(MATCH_CASE_OR_DEFAULT_IMPL_, condition)
 
 #define MATCH_PARENS_PROBE(...) _, 1
 #define MATCH_PARENS_CONDITION(a, b, ...) b
@@ -33,11 +58,10 @@ namespace nstd {
 #define MATCH_CASE_PROBE(...) _, 1
 #define MATCH_CASE_CONDITION(a, b, ...) b
 #define MATCH_CASE_CHECK(...) MATCH_CASE_CONDITION(__VA_ARGS__, 0)
-#define MATCH_CASE_PARSE_IMPL_0(...)
-#define MATCH_CASE_DEFAULT_PARSE()
-#define MATCH_CASE_PARSE_IMPL_1_IMPL(m, c, ...) \
-    case c:                                     \
-        return __VA_ARGS__();
+#define MATCH_CASE_PARSE_IMPL_0(...) MATCH_PP_EMPTY
+#define MATCH_CASE_PARSE_IMPL_1_IMPL(m, c, ...)                                                    \
+    MATCH_CASE_OR_DEFAULT_IMPL(MATCH_CASE_OR_DEFAULT_CHECK(MATCH_CONCAT(MATCH_DEFAULT_SYMBOL, c))) \
+    (m, c, __VA_ARGS__)
 #define MATCH_CASE_PARSE_IMPL_1(m, c) MATCH_CASE_PARSE_IMPL_1_IMPL(m, c)
 #define MATCH_CASE_PARSE_IMPL(condition) MATCH_CONCAT(MATCH_CASE_PARSE_IMPL_, condition)
 #define MATCH_CASE_PARSE(m, c) \
@@ -106,9 +130,39 @@ namespace nstd {
     MATCH_CASE_PARSE(m, c28)        \
     MATCH_CASE_PARSE(m, c29)
 
-#define MATCH_CASES_PARSE(m, ...) \
-    MATCH_CASES_PARSE_IMPL(       \
-        m, ##__VA_ARGS__, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
+#define MATCH_CASES_PARSE(m, ...)         \
+    MATCH_CASES_PARSE_IMPL(m,             \
+                           ##__VA_ARGS__, \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _,             \
+                           _)
 
 #define MATCH_IMPL(matchable, ...)                    \
     [&matchable]() -> decltype(auto) {                \
@@ -125,7 +179,6 @@ namespace nstd {
  * Note: this approach must check every branch, then the execution efficiency is not as good as the
  * first approach.
  */
-
 // template<typename Derived, typename = typename std::enable_if<nstd::is_pure_type<Derived>>::type>
 // class ApplyMatchTrait
 // {

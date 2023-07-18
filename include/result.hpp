@@ -2,6 +2,9 @@
 #define __NSTD_RESULT_HPP__
 
 #include <type_traits>
+#include <assert.h>
+#include <type_magic.hpp>
+#include <match.hpp>
 
 namespace nstd {
 
@@ -12,7 +15,7 @@ enum Status
     UNREPORTED_ERR,
 };
 template <typename OkType, typename ErrType>
-class Result //: public ApplyMatchTrait<Result<OkType, ErrType>, Status>
+class Result
 {
 private:
     Status m_status;
@@ -66,13 +69,30 @@ public:
     Result(const Result<OkType, ErrType>& res) : m_result(res) { m_status = res.m_status; }
     Result(Result<OkType, ErrType>&& res) : m_result(std::move(res)) { m_status = res.m_status; }
     inline Status status() { return m_status; }
-    inline bool is_ok() { return Status::OK == m_status; }
-    inline bool is_err()
+    inline bool is_ok() const { return Status::OK == m_status; }
+    inline bool is_err() const
     {
         return Status::REPORTED_ERR == m_status || Status::UNREPORTED_ERR == m_status;
     }
-    inline bool is_reported_err() { return Status::REPORTED_ERR == m_status; }
-    inline bool is_unreported_err() { return Status::UNREPORTED_ERR == m_status; }
+    inline bool is_reported_err() const { return Status::REPORTED_ERR == m_status; }
+    inline bool is_unreported_err() const { return Status::UNREPORTED_ERR == m_status; }
+    typename std::remove_reference<OkType>::type& get(nstd::Int<static_cast<int>(Status::OK)>)
+    {
+        assert(Status::OK == m_status);
+        return m_result.ok_value;
+    }
+    typename std::remove_reference<OkType>::type&
+    get(nstd::Int<static_cast<int>(Status::UNREPORTED_ERR)>)
+    {
+        assert(Status::UNREPORTED_ERR == m_status);
+        return m_result.err_value;
+    }
+    typename std::remove_reference<OkType>::type&
+    get(nstd::Int<static_cast<int>(Status::REPORTED_ERR)>)
+    {
+        assert(Status::REPORTED_ERR == m_status);
+        return m_result.err_value;
+    }
     operator Status() { return m_status; }
     static Result<OkType, ErrType> ok(OkType&& value)
     {
@@ -94,7 +114,7 @@ public:
         {
         case Status::OK: m_result.ok_value.~OkType(); break;
         case Status::REPORTED_ERR:
-        case Status::UNREPORTED_ERR: m_result.err_value.~ErrType();
+        case Status::UNREPORTED_ERR: m_result.err_value.~ErrType(); break;
         default: break;
         }
     }
