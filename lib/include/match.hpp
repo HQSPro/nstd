@@ -9,7 +9,7 @@ namespace nstd {
 
 /* The first implementations of MATCH like rust.
  * This approach is implemented through macros which use switch actually.
- * Note: currently, only 30 branches are supported for matching and we don't support match gurd.
+ * Note: currently, only 30 branches are supported for matching and we don't support match guard.
  */
 
 #define MATCH_PP_EMPTY
