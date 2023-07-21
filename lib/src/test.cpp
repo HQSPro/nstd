@@ -1,6 +1,9 @@
 #include "test.hpp"
 
 namespace nstd {
+
+#ifdef NSTD_TEST
+
 TestCaseImpl::TestCaseImpl(TestKind k, std::string&& n, std::string&& f, std::string&& c)
     : kind(k), name(std::move(n)), file(std::move(f)), code(std::move(c))
 {
@@ -32,4 +35,5 @@ void TestCaseManager::add_test_case(TestKind kind,
         std::abort();
     }
 }
+#endif
 } // namespace nstd
