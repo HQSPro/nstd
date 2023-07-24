@@ -6,7 +6,7 @@ namespace nstd {
 #ifdef NSTD_TEST
 #include <string>
 #include <vector>
-#include <regex>
+#include <unordered_map>
 #include "result.hpp"
 
 enum TestKind
@@ -18,41 +18,41 @@ enum TestKind
     STRESS_TEST,
 };
 
-class TestCaseMeta
+class TestGroupMeta
 {
 protected:
     TestKind kind;
-    std::string name;
+    std::string group;
+    std::vector<std::string> cases;
     std::string file;
+    std::string make_options;
 };
 
-class TestCaseImpl : public TestCaseMeta
+class TestGroup : public TestGroupMeta
 {
-    friend class TestCase;
-
 private:
     std::string code;
-    TestCaseImpl(TestKind k, std::string&& n, std::string&& f, std::string&& c);
-};
-class TestCase:
-{
-private:
-    TestCaseImpl impl;
-
 public:
-    TestCase(TestKind kind, std::string&& name, std::string&& file, std::string&& code);
+    TestGroup(TestKind test_kind, std::string group_name, std::string&& file);
+    TestGroup(TestKind test_kind, std::string group_name, std::string&& file, std::vector<std::string>&& case_names, std::string&& make_options, std::string&& tests_code);
+    void add_case_name(std::string&& case_name);
+    void set_tests_code(std::string&& tests_code);
+    void set_make_options(std::string&& make_options);
+    inline const std::string& get_group_name() const;
 };
 
-class TestCaseManager
+class TestGroupManager
 {
 private:
-    std::vector<nstd::TestCase> cases;
-    static std::mutex tcm_mutex;
-    TestCaseManager() = default;
+    std::unordered_map<std::string, nstd::TestGroup> groups;
+    static std::mutex tgm_mutex;
+    TestGroupManager() = default;
 
 public:
-    static TestCaseManager& get_obj();
-    void add_test_case(TestKind kind, std::string&& name, std::string&& file, std::string&& code);
+    static TestGroupManager& get_obj();
+    void add_test_group(TestGroup&& test_group);
+    inline const std::unordered_map<std::string, nstd::TestGroup>& get_groups() const;
+    inline std::unordered_map<std::string, nstd::TestGroup>& get_groups();
 };
 
 #ifdef private
@@ -79,6 +79,8 @@ public:
     {                                                                                   \
         PhantomUnitTest##name()                                                         \
         {                                                                               \
+            std::string txt{#__VA_ARGS__}; \
+            
             nstd::TestCaseManager& tcm = nstd::TestCaseManager::get_obj();              \
             tcm.add_test_case(nstd::TestKind::UNIT_TEST, #name, __FILE__, #__VA_ARGS__) \
         }                                                                               \
