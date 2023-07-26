@@ -2,8 +2,8 @@
 #ifndef __NSTD_MATCH_HPP__
 #define __NSTD_MATCH_HPP__
 
-#include <assert.h>
-#include <type_magic.hpp>
+#include <type_traits>
+#include <variant>
 
 namespace nstd {
 
@@ -29,12 +29,16 @@ namespace nstd {
 #define MATCH_DEFAULT_SYMBOL_ _, 1
 #define MATCH_CASE_OR_DEFAULT_CONDITION(a, b, ...) b
 #define MATCH_CASE_OR_DEFAULT_CHECK(...) MATCH_CASE_OR_DEFAULT_CONDITION(__VA_ARGS__, 0)
-#define MATCH_CASE_GEN_IMPL_0(c) case c:
-#define MATCH_CASE_GEN_IMPL_1(c) MATCH_PP_EMPTY
+#define MATCH_CASE_GEN_IMPL_0(m, f, c) \
+    case c:                            \
+        return MATCH_PARENS_REMOVE(f)(std::get<static_cast<std::size_t>(c)>(m));
+#define MATCH_CASE_GEN_IMPL_1(m, f, c) MATCH_PP_EMPTY
 #define MATCH_CASE_GEN_IMPL(condition) MATCH_CONCAT(MATCH_CASE_GEN_IMPL_, condition)
-#define MATCH_CASE_GEN(c) \
-    MATCH_CASE_GEN_IMPL(MATCH_CASE_OR_DEFAULT_CHECK(MATCH_CONCAT(MATCH_DEFAULT_SYMBOL, c)))(c)
-#define MATCH_CASE_EXPAND_IMPL(c0,  \
+#define MATCH_CASE_GEN(m, f, c) \
+    MATCH_CASE_GEN_IMPL(MATCH_CASE_OR_DEFAULT_CHECK(MATCH_CONCAT(MATCH_DEFAULT_SYMBOL, c)))(m, c)
+#define MATCH_CASE_EXPAND_IMPL(m,   \
+                               f,   \
+                               c0,  \
                                c1,  \
                                c2,  \
                                c3,  \
@@ -65,39 +69,41 @@ namespace nstd {
                                c28, \
                                c29, \
                                ...) \
-    MATCH_CASE_GEN(c0)              \
-    MATCH_CASE_GEN(c1)              \
-    MATCH_CASE_GEN(c2)              \
-    MATCH_CASE_GEN(c3)              \
-    MATCH_CASE_GEN(c4)              \
-    MATCH_CASE_GEN(c5)              \
-    MATCH_CASE_GEN(c6)              \
-    MATCH_CASE_GEN(c7)              \
-    MATCH_CASE_GEN(c8)              \
-    MATCH_CASE_GEN(c9)              \
-    MATCH_CASE_GEN(c10)             \
-    MATCH_CASE_GEN(c11)             \
-    MATCH_CASE_GEN(c12)             \
-    MATCH_CASE_GEN(c13)             \
-    MATCH_CASE_GEN(c14)             \
-    MATCH_CASE_GEN(c15)             \
-    MATCH_CASE_GEN(c16)             \
-    MATCH_CASE_GEN(c17)             \
-    MATCH_CASE_GEN(c18)             \
-    MATCH_CASE_GEN(c19)             \
-    MATCH_CASE_GEN(c20)             \
-    MATCH_CASE_GEN(c21)             \
-    MATCH_CASE_GEN(c22)             \
-    MATCH_CASE_GEN(c23)             \
-    MATCH_CASE_GEN(c24)             \
-    MATCH_CASE_GEN(c25)             \
-    MATCH_CASE_GEN(c26)             \
-    MATCH_CASE_GEN(c27)             \
-    MATCH_CASE_GEN(c28)             \
-    MATCH_CASE_GEN(c29)
+    MATCH_CASE_GEN(m, f, c0)        \
+    MATCH_CASE_GEN(m, f, c1)        \
+    MATCH_CASE_GEN(m, f, c2)        \
+    MATCH_CASE_GEN(m, f, c3)        \
+    MATCH_CASE_GEN(m, f, c4)        \
+    MATCH_CASE_GEN(m, f, c5)        \
+    MATCH_CASE_GEN(m, f, c6)        \
+    MATCH_CASE_GEN(m, f, c7)        \
+    MATCH_CASE_GEN(m, f, c8)        \
+    MATCH_CASE_GEN(m, f, c9)        \
+    MATCH_CASE_GEN(m, f, c10)       \
+    MATCH_CASE_GEN(m, f, c11)       \
+    MATCH_CASE_GEN(m, f, c12)       \
+    MATCH_CASE_GEN(m, f, c13)       \
+    MATCH_CASE_GEN(m, f, c14)       \
+    MATCH_CASE_GEN(m, f, c15)       \
+    MATCH_CASE_GEN(m, f, c16)       \
+    MATCH_CASE_GEN(m, f, c17)       \
+    MATCH_CASE_GEN(m, f, c18)       \
+    MATCH_CASE_GEN(m, f, c19)       \
+    MATCH_CASE_GEN(m, f, c20)       \
+    MATCH_CASE_GEN(m, f, c21)       \
+    MATCH_CASE_GEN(m, f, c22)       \
+    MATCH_CASE_GEN(m, f, c23)       \
+    MATCH_CASE_GEN(m, f, c24)       \
+    MATCH_CASE_GEN(m, f, c25)       \
+    MATCH_CASE_GEN(m, f, c26)       \
+    MATCH_CASE_GEN(m, f, c27)       \
+    MATCH_CASE_GEN(m, f, c28)       \
+    MATCH_CASE_GEN(m, f, c29)
 
-#define MATCH_CASE_EXPAND(...)          \
-    MATCH_CASE_EXPAND_IMPL(__VA_ARGS__, \
+#define MATCH_CASE_EXPAND(m, f, ...)    \
+    MATCH_CASE_EXPAND_IMPL(m,           \
+                           f,           \
+                           __VA_ARGS__, \
                            _,           \
                            _,           \
                            _,           \
@@ -129,8 +135,7 @@ namespace nstd {
                            _)
 
 #define MATCH_CASE_OR_DEFAULT_IMPL_0(m, c, ...) \
-    MATCH_CASE_EXPAND(MATCH_PARENS_REMOVE(c))   \
-    return __VA_ARGS__();
+    MATCH_CASE_EXPAND(m, (__VA_ARGS__), MATCH_PARENS_REMOVE(c))
 
 #define MATCH_CASE_OR_DEFAULT_IMPL_1(m, c, ...) \
     default:                                    \
@@ -247,63 +252,55 @@ namespace nstd {
                            _,             \
                            _)
 
-#define MATCH_IMPL(matchable, ...)                    \
-    [&matchable]() -> decltype(auto) {                \
-        switch(matchable)                             \
-        {                                             \
-            MATCH_CASES_PARSE(matchable, __VA_ARGS__) \
-        }                                             \
+#define MATCH_IMPL(matchable, ...)                                  \
+    [matchable{std::move(matchable)}]() mutable -> decltype(auto) { \
+        switch(matchable)                                           \
+        {                                                           \
+            MATCH_CASES_PARSE(matchable, __VA_ARGS__)               \
+        }                                                           \
     }()
 
 #define MATCH(matchable, ...) MATCH_IMPL(MATCH_PARENS_REMOVE(matchable), __VA_ARGS__)
 
 /* The second implementations of match like rust.
  * This approach is implemented through generic which can support a large number of branches.
- * Note: this approach must check every branch, then the execution efficiency is not as good as the
- * first approach.
+ * Note: The MatchableType must can be dereferenced to std::variant.
  */
-// template<typename Derived, typename = typename std::enable_if<nstd::is_pure_type<Derived>>::type>
-// class ApplyMatchTrait
-// {
-//     public:
-//     using type = Derived;
-//     operator int() const
-//     {
-//         return static_cast<int>(*static_cast<Derived*>(this));
-//     }
-// };
 
-// template<int I, typename OneType, typename Func>
-// decltype(auto) match_single_branch(OneType&& v, Func&& func)
-// {
+// helper type for the match
+template <class... Ts>
+struct MatchHelper : Ts...
+{
+    using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+MatchHelper(Ts...) -> MatchHelper<Ts...>;
 
-// }
+template <typename MatchableType, typename... Funcs>
+decltype(auto) match(MatchableType&& v, Funcs&&... funcs)
+{
+    if constexpr(std::is_rvalue_reference_v<MatchableType&&>)
+    {
+        return std::visit(MatchHelper{funcs...}, std::move(*v));
+    }
+    else
+    {
+        return std::visit(MatchHelper{funcs...}, *v);
+    }
+}
 
-// template <typename MatchableType, typename ItemFunc, typename Func>
-// decltype(auto) match_impl(MatchableType&& v, ItemFunc&& item_func)
-// {
+template <typename MatchableType, typename... Funcs>
+decltype(auto) match(MatchableType* v, Funcs&&... funcs)
+{
+    return std::visit(MatchHelper{funcs...}, **v);
+}
 
-// }
-
-// template <typename MatchableType, typename ItemFunc, typename... ItemFuncs>
-// decltype(auto) match_impl(MatchableType&& v, ItemFunc&& item_func, ItemFuncs&&... item_funcs)
-// {
-//     static_cast<int>(v)
-// }
-
-// template <typename MatchableType, typename... ItemFuncs>
-// decltype(auto) match(MatchableType&& v, ItemFuncs&&... item_funcs)
-// {
-//     return match_impl(v, item_funcs...);
-// }
-// template<typename MatchableType, typename... Funcs>
-// decltype(auto) match(MatchableType* v, Funcs&&... funcs)
-// {
-//     if constexpr (
-//         std::is_same<typename std::remove_cvref<MatchableType>::type, typename
-//         ApplyMatchTrait<std::remove_cvref<MatchableType>::type>>
-//     )
-// }
+template <typename MatchableType, typename... Funcs>
+decltype(auto) match(const MatchableType* v, Funcs&&... funcs)
+{
+    return std::visit(MatchHelper{funcs...}, **v);
+}
 
 } // namespace nstd
 #endif

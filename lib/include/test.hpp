@@ -32,9 +32,15 @@ class TestGroup : public TestGroupMeta
 {
 private:
     std::string code;
+
 public:
     TestGroup(TestKind test_kind, std::string group_name, std::string&& file);
-    TestGroup(TestKind test_kind, std::string group_name, std::string&& file, std::vector<std::string>&& case_names, std::string&& make_options, std::string&& tests_code);
+    TestGroup(TestKind test_kind,
+              std::string group_name,
+              std::string&& file,
+              std::vector<std::string>&& case_names,
+              std::string&& make_options,
+              std::string&& tests_code);
     void add_case_name(std::string&& case_name);
     void set_tests_code(std::string&& tests_code);
     void set_make_options(std::string&& make_options);
@@ -74,18 +80,19 @@ public:
 #define TEST_PARENS_REMOVE(expr) \
     TEST_PARENS_REMOVE_IMPL(TEST_PARENS_CHECK(TEST_PARENS_PROBE expr))(expr)
 
-#define UNIT_TEST(name, ...)                                                            \
-    struct PhantomUnitTest##name                                                        \
-    {                                                                                   \
-        PhantomUnitTest##name()                                                         \
-        {                                                                               \
-            std::string txt{#__VA_ARGS__}; \
-            
-            nstd::TestCaseManager& tcm = nstd::TestCaseManager::get_obj();              \
-            tcm.add_test_case(nstd::TestKind::UNIT_TEST, #name, __FILE__, #__VA_ARGS__) \
-        }                                                                               \
-    };                                                                                  \
-    [[maybe_unused]] static const PhantomUnitTest##name _unit_test_##name{};
+#define UNIT_TEST(name, ...)     \
+    struct PhantomUnitTest##name \
+    {                            \
+        PhantomUnitTest##name()  \
+        {                        \
+            std::string txt{#__VA_ARGS__};
+
+nstd::TestCaseManager& tcm = nstd::TestCaseManager::get_obj();
+tcm.add_test_case(nstd::TestKind::UNIT_TEST, #name, __FILE__, #__VA_ARGS__)
+}
+}
+;
+[[maybe_unused]] static const PhantomUnitTest##name _unit_test_##name{};
 #define INTEGRATION_TEST(name, ...)                                                            \
     struct PhantomIntegrationTest##name                                                        \
     {                                                                                          \
