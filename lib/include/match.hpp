@@ -278,7 +278,7 @@ template <class... Ts>
 MatchHelper(Ts...) -> MatchHelper<Ts...>;
 
 template <typename MatchableType, typename... Funcs>
-decltype(auto) match(MatchableType&& v, Funcs&&... funcs)
+constexpr decltype(auto) match(MatchableType&& v, Funcs&&... funcs)
 {
     if constexpr(std::is_rvalue_reference_v<MatchableType&&>)
     {
@@ -291,13 +291,13 @@ decltype(auto) match(MatchableType&& v, Funcs&&... funcs)
 }
 
 template <typename MatchableType, typename... Funcs>
-decltype(auto) match(MatchableType* v, Funcs&&... funcs)
+constexpr decltype(auto) match(MatchableType* v, Funcs&&... funcs)
 {
     return std::visit(MatchHelper{funcs...}, **v);
 }
 
 template <typename MatchableType, typename... Funcs>
-decltype(auto) match(const MatchableType* v, Funcs&&... funcs)
+constexpr decltype(auto) match(const MatchableType* v, Funcs&&... funcs)
 {
     return std::visit(MatchHelper{funcs...}, **v);
 }

@@ -51,17 +51,17 @@ using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
 template <int N>
 struct Int : Int<N - 1>
 {
-    static constexpr int value = N;
+    constexpr static int value = N;
 };
 
 template <>
 struct Int<0>
 {
-    static constexpr int value = 0;
+    constexpr static int value = 0;
 };
 
 template <typename T>
-static constexpr bool is_pure_type = !(std::is_pointer<T>::value || std::is_reference<T>::value ||
+constexpr static bool is_pure_type = !(std::is_pointer<T>::value || std::is_reference<T>::value ||
                                        std::is_const<T>::value || std::is_volatile<T>::value);
 
 template <typename T>
