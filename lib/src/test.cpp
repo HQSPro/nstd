@@ -20,6 +20,11 @@ void TestGroup::set_code(std::string&& tests_code) noexcept
 
 const std::string& TestGroup::get_group_name() const noexcept { return group; }
 
+const std::vector<TestCaseInfo> TestGroup::get_cases() const noexcept
+{
+    return cases;
+}
+
 TestGroupManager& TestGroupManager::get_obj()
 {
     static TestGroupManager tgm{};
@@ -52,32 +57,32 @@ TEST(test_framwork_test,
 void test_utest()
 {
     nstd::TestGroup tg0("test_framwork_test", __FILE__);
-    assert("test_framwork_test" == tg0.group.c_str());
+    assert("test_framwork_test" == tg0.get_group_name().c_str());
     nstd::TestGroup tg1(std::string("test_framwork_test"), std::string(__FILE__));
-    assert("test_framwork_test" == tg0.group.c_str());
+    assert("test_framwork_test" == tg0.get_group_name().c_str());
     tg0.add_case(nstd::TestKind::UNIT_TEST, std::string("test_utest"));
-    assert("test_utest" == tg0.cases.front().c_str());
+    assert("test_utest" == tg0.get_cases().front().c_str());
 }
 [[itest(test_itest)]]
 void test_itest()
 {
     nstd::TestGroup tg0("test_framwork_test", __FILE__);
-    assert("test_framwork_test" == tg0.group.c_str());
+    assert("test_framwork_test" == tg0.get_group_name().c_str());
     nstd::TestGroup tg1(std::string("test_framwork_test"), std::string(__FILE__));
-    assert("test_framwork_test" == tg0.group.c_str());
+    assert("test_framwork_test" == tg0.get_group_name().c_str());
     tg0.add_case(nstd::TestKind::UNIT_TEST, std::string("test_itest"));
-    assert("test_itest" == tg0.cases.front().c_str());
+    assert("test_itest" == tg0.get_cases().front().c_str());
 }
 [[bench(test_bench)]]
 void test_bench(nstd::BenchMark& b)
 {
     b.iter([]{
         nstd::TestGroup tg0("test_framwork_test", __FILE__);
-        assert("test_framwork_test" == tg0.group.c_str());
+        assert("test_framwork_test" == tg0.get_group_name().c_str());
         nstd::TestGroup tg1(std::string("test_framwork_test"), std::string(__FILE__));
-        assert("test_framwork_test" == tg0.group.c_str());
+        assert("test_framwork_test" == tg1.get_group_name().c_str());
         tg0.add_case(nstd::TestKind::UNIT_TEST, std::string("test_bench"));
-        assert("test_bench" == tg0.cases.front().c_str());
+        assert("test_bench" == tg0.get_cases().front().c_str());
     });
 }
 [[stress(test_stress)]]
@@ -85,11 +90,11 @@ void test_stress(nstd::StressTest& s)
 {
     s.iter([]{
         nstd::TestGroup tg0("test_framwork_test", __FILE__);
-        assert("test_framwork_test" == tg0.group.c_str());
+        assert("test_framwork_test" == tg0.get_group_name().c_str());
         nstd::TestGroup tg1(std::string("test_framwork_test"), std::string(__FILE__));
-        assert("test_framwork_test" == tg0.group.c_str());
+        assert("test_framwork_test" == tg0.get_group_name().c_str());
         tg0.add_case(nstd::TestKind::UNIT_TEST, std::string("test_stress"));
-        assert("test_stress" == tg0.cases.front().c_str());
+        assert("test_stress" == tg0.get_cases().front().c_str());
     });
 }
 )

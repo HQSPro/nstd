@@ -39,6 +39,7 @@ public:
     void add_case(TestKind kind, std::string&& case_name) noexcept;
     void set_code(std::string&& tests_code) noexcept;
     inline const std::string& get_group_name() const noexcept;
+    inline const std::vector<TestCaseInfo> get_cases() const noexcept;
 };
 
 class TestGroupManager
