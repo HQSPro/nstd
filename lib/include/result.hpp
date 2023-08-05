@@ -45,11 +45,13 @@ public:
     inline constexpr std::add_pointer_t<ErrType> operator->() { return &value; }
 };
 
+template<>
+class Err<void>{};
+
 template <typename OkType, typename ErrType>
-class Result {
+class Result: nstd::variant<Ok<OkType>, Err<ErrType>> {
 private:
     ResultStatus m_status;
-    std::variant<Ok<OkType>, Err<ErrType>> m_result;
 
     constexpr Result(std::add_rvalue_reference_t<OkType> ok_value)
         : m_status(ResultStatus::OK), m_result(std::in_place_type_t<Ok<OkType>>{}, std::forward<OkType>(ok_value))

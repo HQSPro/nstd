@@ -4,7 +4,10 @@
 
 #include "version.hpp"
 #ifdef __cpp_lib_variant
-#define NSTD_LIB_HAS_VARIANT __cpp_lib_variant
+#define NSTD_LIB_HAS_VARIANT
+#endif
+#if (defined(__cpp_lib_variant) && (__cpp_lib_variant >= 202102L))
+#define NSTD_LIB_HAS_VARIANT_VISIT
 #endif
 
 #ifdef NSTD_LIB_HAS_VARIANT
@@ -18,9 +21,12 @@ using std::variant;
 // todo: define the variant class.
 #endif
 
-#if(defined(NSTD_LIB_HAS_VARIANT) && (NSTD_LIB_HAS_VARIANT < 202102L))
+#ifdef NSTD_LIB_HAS_VARIANT_VISIT
+using std::visit;
+#else
 // todo: define the std::visit for variant.
 #endif
+
 }  // namespace nstd
 
 #endif

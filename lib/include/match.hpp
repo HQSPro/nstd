@@ -2,12 +2,43 @@
 #ifndef __NSTD_MATCH_HPP__
 #define __NSTD_MATCH_HPP__
 
-#include <type_traits>
-#include <variant>
+#include "type_traits"
+#include "variant"
 
 namespace nstd {
 
-/* The first implementations of MATCH like rust.
+/* The first implementations of match like rust.
+ * This approach is implemented through generic which can support a large number of branches.
+ */
+
+// helper type for the match
+template <class... Ts>
+struct MatchHelper : Ts... {
+    using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+MatchHelper(Ts...) -> MatchHelper<Ts...>;
+
+template <typename... Vs, typename... Funcs>
+constexpr decltype(auto) match(nstd::variant<Vs...>&& v, Funcs&&... funcs)
+{
+    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
+}
+
+template <typename... Vs, typename... Funcs>
+constexpr decltype(auto) match(nstd::variant<Vs...>& v, Funcs&&... funcs)
+{
+    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
+}
+
+template <typename... Vs, typename... Funcs>
+constexpr decltype(auto) match(const nstd::variant<Vs...>& v, Funcs&&... funcs)
+{
+    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
+}
+
+/* The second implementations of MATCH like rust.
  * This approach is implemented through macros which use switch actually.
  * Note: currently, only 30 branches are supported for matching and we don't support match guard.
  */
@@ -133,39 +164,6 @@ namespace nstd {
     }()
 
 #define MATCH(matchable, ...) MATCH_IMPL(MATCH_PARENS_REMOVE(matchable), __VA_ARGS__)
-
-/* The second implementations of match like rust.
- * This approach is implemented through generic which can support a large number of branches.
- * Note: The MatchableType must can be dereferenced to std::variant.
- */
-
-// helper type for the match
-template <class... Ts>
-struct MatchHelper : Ts... {
-    using Ts::operator()...;
-};
-// explicit deduction guide (not needed as of C++20)
-template <class... Ts>
-MatchHelper(Ts...) -> MatchHelper<Ts...>;
-
-template <typename MatchableType, typename... Funcs>
-constexpr decltype(auto) match(MatchableType&& v, Funcs&&... funcs)
-{
-    if constexpr(std::is_rvalue_reference_v<MatchableType&&>) { return std::visit(MatchHelper{funcs...}, std::move(*v)); }
-    else { return std::visit(MatchHelper{funcs...}, *v); }
-}
-
-template <typename MatchableType, typename... Funcs>
-constexpr decltype(auto) match(MatchableType* v, Funcs&&... funcs)
-{
-    return std::visit(MatchHelper{funcs...}, **v);
-}
-
-template <typename MatchableType, typename... Funcs>
-constexpr decltype(auto) match(const MatchableType* v, Funcs&&... funcs)
-{
-    return std::visit(MatchHelper{funcs...}, **v);
-}
 
 }  // namespace nstd
 #endif
