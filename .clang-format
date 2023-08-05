@@ -168,7 +168,7 @@ UseTab:          Never
  # 在构造函数的初始化列表的逗号前换行
  BreakConstructorInitializersBeforeComma:false
  # 每行字符的限制，0表示没有限制
- ColumnLimit:100
+ ColumnLimit:160
  # 描述具有特殊意义的注释的正则表达式，它不应该被分割为多行或以其它方式改变
  CommentPragmas:'^ IWYU pragma:'
  # 构造函数的初始化列表要么都在同一行，要么都各自一行
@@ -235,29 +235,30 @@ UseTab:          Never
  # 允许重新排版注释
  ReflowComments:true
  # 允许排序#include
- SortIncludes:true
+ SortIncludes:false
  # 在C风格类型转换后添加空格
  SpaceAfterCStyleCast:false
+ # SpaceAfterTemplateKeyword: false
  # 在赋值运算符之前添加空格
  SpaceBeforeAssignmentOperators:true
  # 开圆括号之前添加一个空格: Never, ControlStatements, Always
- SpaceBeforeParens:ControlStatements
+ SpaceBeforeParens:Never
  # 在空的圆括号中添加空格
  SpaceInEmptyParentheses:false
  # 在尾随的评论前添加的空格数(只适用于//)
  SpacesBeforeTrailingComments:2
  # 在尖括号的<后和>前添加空格
- SpacesInAngles:true
+ SpacesInAngles:false
  # 在容器(ObjC和JavaScript的数组和字典等)字面量中添加空格
  SpacesInContainerLiterals:true
  # 在C风格类型转换的括号中添加空格
- SpacesInCStyleCastParentheses:true
+ SpacesInCStyleCastParentheses:false
  # 在圆括号的(后和)前添加空格
- SpacesInParentheses:true
+ SpacesInParentheses:false
  # 在方括号的[后和]前添加空格，lamda表达式和未指明大小的数组的声明不受影响
- SpacesInSquareBrackets:true
+ SpacesInSquareBrackets:false
  # 标准: Cpp03, Cpp11, Auto
- Standard:Cpp11
+ Standard:Cpp17
  # tab宽度
  TabWidth:4
  # 使用tab字符: Never, ForIndentation, ForContinuationAndIndentation, Always
