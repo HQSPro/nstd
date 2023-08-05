@@ -94,13 +94,14 @@ public:
     }
 };
 
-typedef<typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
-class NotNull
+typedef<typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true> class NotNull
 {
     T p;
-    public:
-    constexpr NotNull(T ptr): p(ptr){}
-    inline constexpr std::add_const_t<std::add_lvalue_reference_t<std::remove_pointer_t<T>>> operator*() const
+
+public:
+    constexpr NotNull(T ptr) : p(ptr) {}
+    inline constexpr std::add_const_t<std::add_lvalue_reference_t<std::remove_pointer_t<T>>>
+    operator*() const
     {
         return *p;
     }
@@ -108,15 +109,8 @@ class NotNull
     {
         return *p;
     }
-    inline constexpr std::add_const_t<T>
-    operator->() const
-    {
-        return p;
-    }
-    inline constexpr T operator->()
-    {
-        return p;
-    }
+    inline constexpr std::add_const_t<T> operator->() const { return p; }
+    inline constexpr T operator->() { return p; }
 }
 
 } // namespace nstd

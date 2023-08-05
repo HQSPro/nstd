@@ -2,7 +2,7 @@
 #define __NSTD_RESULT_HPP__
 
 #include <type_traits>
-#include <variant>
+#include "variant"
 #include "type_magic.hpp"
 
 namespace nstd {

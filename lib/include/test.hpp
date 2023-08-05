@@ -8,7 +8,18 @@ namespace nstd {
 #ifdef NSTD_TEST
 #include <sstream>
 #include <regex>
+#ifdef private
+#undef private
 #endif
+#ifdef protected
+#undef protected
+#endif
+#define private public
+#define protected public
+#endif
+
+typedef void (*BenchFunc)();
+typedef void (*StressFunc)();
 
 enum TestKind
 {
@@ -39,7 +50,7 @@ public:
     void add_case(TestKind kind, std::string&& case_name) noexcept;
     void set_code(std::string&& tests_code) noexcept;
     inline const std::string& get_group_name() const noexcept;
-    inline const std::vector<TestCaseInfo> get_cases() const noexcept;
+    inline const std::vector<TestCaseInfo>& get_cases() const noexcept;
 };
 
 class TestGroupManager
@@ -55,14 +66,6 @@ public:
 };
 
 #ifdef NSTD_TEST
-#ifdef private
-#undef private
-#endif
-#ifdef protected
-#undef protected
-#endif
-#define private public
-#define protected public
 
 #define TEST_PARENS_PROBE(...) _, 1
 #define TEST_PARENS_CONDITION(a, b, ...) b
@@ -75,8 +78,9 @@ public:
     TEST_PARENS_REMOVE_IMPL(TEST_PARENS_CHECK(TEST_PARENS_PROBE expr))(expr)
 
 #define TEST(name, ...)                                                                            \
-    struct PhantomGroupTest##name                                                                  \
+    class PhantomGroupTest##name                                                                   \
     {                                                                                              \
+    public:                                                                                        \
         PhantomGroupTest##name()                                                                   \
         {                                                                                          \
             std::istringstream txt{#__VA_ARGS__};                                                  \
@@ -161,9 +165,10 @@ public:
         }                                                                                          \
     };                                                                                             \
     [[maybe_unused]] static const PhantomGroupTest##name _group_test_##name{};
-#define DOC_TEST(name, inc, ...)                                                         \
-    struct PhantomDocTest##name                                                          \
+#define DOC_TEST(name, incs, ...)                                                        \
+    class PhantomDocTest##name                                                           \
     {                                                                                    \
+    public:                                                                              \
         PhantomDocTest##name()                                                           \
         {                                                                                \
             std::string incs(TEST_PARENS_REMOVE(inc));                                   \
@@ -219,7 +224,7 @@ public:
 #else
 #define TEST_PP_EMPTY
 #define TEST(name, ...) TEST_PP_EMPTY
-#define DOC_TEST(name, inc, ...) __VA_ARGS__
+#define DOC_TEST(name, incs, ...) __VA_ARGS__
 #endif
 } // namespace nstd
 
