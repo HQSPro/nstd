@@ -4,11 +4,11 @@
 
 #include <type_traits>
 
-#if __cplusplus >= 201703L // c++17
+#if __cplusplus >= 201703L  // c++17
 #define NSTD_VALUE_HAS_IS_INTEGRAL_V
 #endif
 
-#if __cplusplus >= 201402L // c++14
+#if __cplusplus >= 201402L  // c++14
 #define NSTD_TYPE_HAS_ENABLE_IF_T
 #endif
 
@@ -28,6 +28,6 @@ template <bool B, typename T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
 #endif
 
-} // namespace nstd
+}  // namespace nstd
 
 #endif

@@ -2,10 +2,7 @@
 
 namespace nstd {
 
-TestGroup::TestGroup(std::string&& n, std::string&& f)
-    : group(std::forward<std::string>(n)), file(std::forward<std::string>(f))
-{
-}
+TestGroup::TestGroup(std::string&& n, std::string&& f) : group(std::forward<std::string>(n)), file(std::forward<std::string>(f)) {}
 TestGroup::TestGroup(const std::string& n, const std::string& f) : group(n), file(f) {}
 
 void TestGroup::add_case(TestKind kind, std::string&& case_name) noexcept;
@@ -13,10 +10,7 @@ void TestGroup::add_case(TestKind kind, std::string&& case_name) noexcept;
     cases.emplace_back(kind, std::forward<std::string>(case_name));
 }
 
-void TestGroup::set_code(std::string&& tests_code) noexcept
-{
-    code = std::forward<std::string>(tests_code);
-}
+void TestGroup::set_code(std::string&& tests_code) noexcept { code = std::forward<std::string>(tests_code); }
 
 const std::string& TestGroup::get_group_name() const noexcept { return group; }
 
@@ -44,7 +38,7 @@ void TestGroupManager::add_test_group(TestGroup&& test_group)
     }
 }
 
-} // namespace nstd
+}  // namespace nstd
 
 // clang-format off
 TEST(test_framwork_test,
@@ -73,8 +67,7 @@ void test_itest()
 [[bench(test_bench)]]
 void test_bench(nstd::BenchFunc& b)
 {
-    handle = init();
-    b = [handle]{
+    b = []{
         nstd::TestGroup tg0("test_framwork_test", __FILE__);
         assert("test_framwork_test" == tg0.get_group_name().c_str());
         nstd::TestGroup tg1(std::string("test_framwork_test"), std::string(__FILE__));

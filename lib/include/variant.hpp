@@ -21,6 +21,6 @@ using std::variant;
 #if(defined(NSTD_LIB_HAS_VARIANT) && (NSTD_LIB_HAS_VARIANT < 202102L))
 // todo: define the std::visit for variant.
 #endif
-} // namespace nstd
+}  // namespace nstd
 
 #endif
