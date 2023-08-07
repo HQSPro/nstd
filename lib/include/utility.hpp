@@ -8,11 +8,40 @@
 #define NSTD_LIB_HAS_INTERGER_SEQUENCE
 #else
 #include <cstddef>
-#include <limits>
 #include "type_traits.hpp"
 #endif
 
+#if __cplusplus >= 201703L  // c++17
+#define NSTD_TYPE_HAS_IN_PLACE_T
+#endif
+
 namespace nstd {
+
+#ifdef NSTD_TYPE_HAS_IN_PLACE_T
+using std::in_place;
+using std::in_place_index;
+using std::in_place_index_t;
+using std::in_place_t;
+using std::in_place_type;
+using std::in_place_type_t;
+#else
+struct in_place_t {
+    explicit in_place_t() = default;
+};
+inline constexpr in_place_t in_place {}
+template <class T>
+struct in_place_type_t {
+    explicit in_place_type_t() = default;
+};
+template <class T>
+inline constexpr in_place_type_t<T> in_place_type{};
+template <std::size_t I>
+struct in_place_index_t {
+    explicit in_place_index_t() = default;
+};
+template <std::size_t I>
+inline constexpr in_place_index_t<I> in_place_index{};
+#endif
 
 #ifdef NSTD_LIB_HAS_INTERGER_SEQUENCE
 using std::index_sequence;

@@ -11,31 +11,27 @@ namespace nstd {
  * This approach is implemented through generic which can support a large number of branches.
  */
 
-// helper type for the match
-template <class... Ts>
-struct MatchHelper : Ts... {
-    using Ts::operator()...;
-};
-// explicit deduction guide (not needed as of C++20)
-template <class... Ts>
-MatchHelper(Ts...) -> MatchHelper<Ts...>;
+namespace _internal0_impl0_match_helper {
+    // helper type for the match
+    template <class... Ts>
+    struct MatchHelper : Ts... {
+        using Ts::operator()...;
+    };
+    // explicit deduction guide (not needed as of C++20)
+    template <class... Ts>
+    MatchHelper(Ts...) -> MatchHelper<Ts...>;
+}  // namespace _internal0_impl0_match_helper
 
 template <typename... Vs, typename... Funcs>
 constexpr decltype(auto) match(nstd::variant<Vs...>&& v, Funcs&&... funcs)
 {
-    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
-}
-
-template <typename... Vs, typename... Funcs>
-constexpr decltype(auto) match(nstd::variant<Vs...>& v, Funcs&&... funcs)
-{
-    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
+    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
 }
 
 template <typename... Vs, typename... Funcs>
 constexpr decltype(auto) match(const nstd::variant<Vs...>& v, Funcs&&... funcs)
 {
-    return nstd::visit(MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
+    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...}, std::forward<nstd::variant<Vs...>>(v));
 }
 
 /* The second implementations of MATCH like rust.

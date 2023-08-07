@@ -1,8 +1,6 @@
 #ifndef __NSTD_TEST_HPP__
 #define __NSTD_TEST_HPP__
 
-namespace nstd {
-
 #include <string>
 #include <vector>
 #ifdef NSTD_TEST
@@ -17,6 +15,8 @@ namespace nstd {
 #define private public
 #define protected public
 #endif
+
+namespace nstd {
 
 typedef void (*BenchFunc)();
 typedef void (*StressFunc)();
@@ -140,7 +140,7 @@ public:
             tgm.add_test_group(std::move(tg));                                                                                               \
         }                                                                                                                                    \
     };                                                                                                                                       \
-    [[maybe_unused]] static const PhantomGroupTest##name _group_test_##name{};
+    [[maybe_unused]] inline static const PhantomGroupTest##name _group_test_##name{};
 #define DOC_TEST(name, incs, ...)                                                                           \
     class PhantomDocTest##name {                                                                            \
     public:                                                                                                 \
@@ -190,7 +190,7 @@ public:
             tgm.add_test_group(std::move(tg));                                                              \
         }                                                                                                   \
     };                                                                                                      \
-    [[maybe_unused]] static const PhantomDocTest##name _doc_test_##name{};                                  \
+    [[maybe_unused]] inline static const PhantomDocTest##name _doc_test_##name{};                           \
     __VA_ARGS__
 #else
 #define TEST_PP_EMPTY

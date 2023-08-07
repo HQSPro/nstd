@@ -12,7 +12,4 @@
 #include <version>
 #endif
 
-namespace nstd {
-}
-
 #endif

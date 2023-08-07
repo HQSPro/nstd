@@ -6,7 +6,7 @@
 #ifdef __cpp_lib_variant
 #define NSTD_LIB_HAS_VARIANT
 #endif
-#if (defined(__cpp_lib_variant) && (__cpp_lib_variant >= 202102L))
+#if(defined(__cpp_lib_variant) && (__cpp_lib_variant >= 202102L))
 #define NSTD_LIB_HAS_VARIANT_VISIT
 #endif
 
@@ -16,9 +16,13 @@
 
 namespace nstd {
 #ifdef NSTD_LIB_HAS_VARIANT
+using std::get;
+using std::monostate;
 using std::variant;
 #else
 // todo: define the variant class.
+// todo: define the monostate class.
+// todo: define the get algorithm.
 #endif
 
 #ifdef NSTD_LIB_HAS_VARIANT_VISIT
