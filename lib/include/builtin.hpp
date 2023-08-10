@@ -30,7 +30,7 @@ namespace _internal0_impl0_builtin {
         template <typename>
         struct set;
         template <std::size_t... Is>
-        struct set<index_sequence<Is...>> : indexed_type<Is, Ts>... {};
+        struct set<nstd::index_sequence<Is...>> : indexed_type<Is, Ts>... {};
         template <typename T>
         inline static std::enable_if<true, T> impl(indexed_type<I, T>);
         inline static std::enable_if<false> impl(...);
