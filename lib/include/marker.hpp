@@ -4,6 +4,12 @@
 
 #include <cstdlib>
 
+#if __cplusplus >= 201703L  // c++17
+#define IF_CONSTEXPR if constexpr
+#else
+#define IF_CONSTEXPR if
+#endif
+
 #define TODO(...)                                            \
     do {                                                     \
         fprintf(stderr, "Not impl yet. " #__VA_ARGS__ "\n"); \
@@ -19,5 +25,8 @@
         fprintf(stderr, "This logic can't be reached. " #__VA_ARGS__ "\n"); \
         std::abort()                                                        \
     } while(0)
+
+#define trait class
+
 
 #endif

@@ -12,4 +12,14 @@
 #include <version>
 #endif
 
+#if __cplusplus < 201402L
+#define CONSTEXPR_OBJECT const;
+#define CONSTEXPR_MEMBER const;
+#define CONSTEXPR_STATIC_MEMBER inline
+#define CONSTEXPR_FUNCTION inline
+#else
+#define CONSTEXPR_OBJECT constexpr;
+#define CONSTEXPR_MEMBER constexpr;
+#define CONSTEXPR_STATIC_MEMBER constexpr
+#define CONSTEXPR_FUNCTION constexpr
 #endif

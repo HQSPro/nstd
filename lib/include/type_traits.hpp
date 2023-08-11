@@ -7,6 +7,8 @@
 #if __cplusplus >= 201703L  // c++17
 #define NSTD_VALUE_HAS_IS_INTEGRAL_V
 #define NSTD_VALUE_HAS_IS_POINTER_V
+#define NSTD_VALUE_HAS_IS_BASE_OF_V
+#define NSTD_VALUE_HAS_IS_SAME_V
 #endif
 
 #if __cplusplus >= 201402L  // c++14
@@ -16,6 +18,8 @@
 #define NSTD_TYPE_HAS_ADD_CONST_T
 #define NSTD_TYPE_HAS_ADD_POINTER_T
 #define NSTD_TYPE_HAS_REMOVE_POINTER_T
+#define NSTD_TYPE_HAS_DECAY_T
+#define NSTD_TYPE_HAS_REMOVE_REFERENCE_T
 #endif
 
 namespace nstd {
@@ -75,6 +79,35 @@ using std::is_pointer_v;
 template <class T>
 inline constexpr bool is_pointer_v = is_pointer<T>::value;
 #endif
+
+#ifdef NSTD_VALUE_HAS_IS_BASE_OF_V
+using std::is_base_of_v;
+#else
+template <class Base, class Derived>
+inline constexpr bool is_base_of_v = std::is_base_of<Base, Derived>::value;
+#endif
+
+#ifdef NSTD_VALUE_HAS_IS_SAME_V
+using std::is_same_v;
+#else
+template< class T, class U >
+inline constexpr bool is_same_v = is_same<T, U>::value;
+#endif
+
+#ifdef NSTD_TYPE_HAS_DECAY_T
+using std::decay_t;
+#else
+template< class T >
+using decay_t = typename decay<T>::type;
+#endif
+
+#ifdef NSTD_TYPE_HAS_REMOVE_REFERENCE_T
+using std::remove_reference_t;
+#else
+template< class T >
+using remove_reference_t = typename remove_reference<T>::type;
+#endif
+
 
 }  // namespace nstd
 

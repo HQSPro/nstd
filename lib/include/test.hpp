@@ -64,6 +64,13 @@ public:
 
 #ifdef NSTD_TEST
 
+template <typename T>
+T& make_test_group()
+{
+    static const T test_group{};
+    return test_group;
+}
+
 #define TEST_PARENS_PROBE(...) _, 1
 #define TEST_PARENS_CONDITION(a, b, ...) b
 #define TEST_PARENS_CHECK(...) TEST_PARENS_CONDITION(__VA_ARGS__, 0)
@@ -76,7 +83,7 @@ public:
 #define TEST(name, ...)                                                                                                                      \
     class PhantomGroupTest##name {                                                                                                           \
     public:                                                                                                                                  \
-        PhantomGroupTest##name()                                                                                                             \
+        PhantomGroupTest##name(I)                                                                                                            \
         {                                                                                                                                    \
             std::istringstream txt{#__VA_ARGS__};                                                                                            \
             std::ostringstream code;                                                                                                         \
@@ -140,57 +147,57 @@ public:
             tgm.add_test_group(std::move(tg));                                                                                               \
         }                                                                                                                                    \
     };                                                                                                                                       \
-    [[maybe_unused]] inline static const PhantomGroupTest##name _group_test_##name{};
-#define DOC_TEST(name, incs, ...)                                                                           \
-    class PhantomDocTest##name {                                                                            \
-    public:                                                                                                 \
-        PhantomDocTest##name()                                                                              \
-        {                                                                                                   \
-            std::string incs(TEST_PARENS_REMOVE(inc));                                                      \
-            while(std::string::npos != incs.find(",")) { incs = incs.replace(incs.find(","), 1, "\n"); }    \
-            std::istringstream explain(#__VA_ARGS__);                                                       \
-            std::ostringstream code;                                                                        \
-            code << incs << "\n";                                                                           \
-            bool bfind = false;                                                                             \
-            std::regex example_pattern("^(\\s*)(///|//!|\\*)(\\s*)(```)(\\s*)");                            \
-            std::regex code_pattern("^(\\s*)(///|//!|\\*)(\\s*)(.*)");                                      \
-            std::string nm = #name;                                                                         \
-            int count      = 0;                                                                             \
-            nstd::TestGroup tg(#name, __FILE__);                                                            \
-            for(std::string line; std::getline(explain, line);)                                             \
-            {                                                                                               \
-                if(!bfind)                                                                                  \
-                {                                                                                           \
-                    bfind = std::regex_match(line, example_pattern);                                        \
-                    if(bfind)                                                                               \
-                    {                                                                                       \
-                        tg.add_case(nstd::TestKind::DOC_TEST, std::move(nm + "_" + std::to_string(count))); \
-                        code << "void " << nm + "_" + std::to_string(count) << "() {\n";                    \
-                    }                                                                                       \
-                }                                                                                           \
-                else                                                                                        \
-                {                                                                                           \
-                    if(std::regex_match(line, example_pattern))                                             \
-                    {                                                                                       \
-                        code << "\n}\n";                                                                    \
-                        bfind = false;                                                                      \
-                        ++count;                                                                            \
-                    }                                                                                       \
-                    else                                                                                    \
-                    {                                                                                       \
-                        std::smatch r;                                                                      \
-                        std::regex_match(line, r, code_pattern);                                            \
-                        code << r[4] << "\n";                                                               \
-                    }                                                                                       \
-                }                                                                                           \
-            }                                                                                               \
-            assert(!bfind);                                                                                 \
-            tg.set_code(code.str());                                                                        \
-            nstd::TestCaseManager& tgm = nstd::TestCaseManager::get_obj();                                  \
-            tgm.add_test_group(std::move(tg));                                                              \
-        }                                                                                                   \
-    };                                                                                                      \
-    [[maybe_unused]] inline static const PhantomDocTest##name _doc_test_##name{};                           \
+    [[maybe_unused]] static const PhantomGroupTest##name& _group_test_##name = make_test_group<PhantomGroupTest##name>();
+#define DOC_TEST(name, incs, ...)                                                                                          \
+    class PhantomDocTest##name {                                                                                           \
+    public:                                                                                                                \
+        PhantomDocTest##name()                                                                                             \
+        {                                                                                                                  \
+            std::string incs(TEST_PARENS_REMOVE(inc));                                                                     \
+            while(std::string::npos != incs.find(",")) { incs = incs.replace(incs.find(","), 1, "\n"); }                   \
+            std::istringstream explain(#__VA_ARGS__);                                                                      \
+            std::ostringstream code;                                                                                       \
+            code << incs << "\n";                                                                                          \
+            bool bfind = false;                                                                                            \
+            std::regex example_pattern("^(\\s*)(///|//!|\\*)(\\s*)(```)(\\s*)");                                           \
+            std::regex code_pattern("^(\\s*)(///|//!|\\*)(\\s*)(.*)");                                                     \
+            std::string nm = #name;                                                                                        \
+            int count      = 0;                                                                                            \
+            nstd::TestGroup tg(#name, __FILE__);                                                                           \
+            for(std::string line; std::getline(explain, line);)                                                            \
+            {                                                                                                              \
+                if(!bfind)                                                                                                 \
+                {                                                                                                          \
+                    bfind = std::regex_match(line, example_pattern);                                                       \
+                    if(bfind)                                                                                              \
+                    {                                                                                                      \
+                        tg.add_case(nstd::TestKind::DOC_TEST, std::move(nm + "_" + std::to_string(count)));                \
+                        code << "void " << nm + "_" + std::to_string(count) << "() {\n";                                   \
+                    }                                                                                                      \
+                }                                                                                                          \
+                else                                                                                                       \
+                {                                                                                                          \
+                    if(std::regex_match(line, example_pattern))                                                            \
+                    {                                                                                                      \
+                        code << "\n}\n";                                                                                   \
+                        bfind = false;                                                                                     \
+                        ++count;                                                                                           \
+                    }                                                                                                      \
+                    else                                                                                                   \
+                    {                                                                                                      \
+                        std::smatch r;                                                                                     \
+                        std::regex_match(line, r, code_pattern);                                                           \
+                        code << r[4] << "\n";                                                                              \
+                    }                                                                                                      \
+                }                                                                                                          \
+            }                                                                                                              \
+            assert(!bfind);                                                                                                \
+            tg.set_code(code.str());                                                                                       \
+            nstd::TestCaseManager& tgm = nstd::TestCaseManager::get_obj();                                                 \
+            tgm.add_test_group(std::move(tg));                                                                             \
+        }                                                                                                                  \
+    };                                                                                                                     \
+    [[maybe_unused]] inline static const PhantomDocTest##name& _doc_test_##name = make_test_group<PhantomDocTest##name>(); \
     __VA_ARGS__
 #else
 #define TEST_PP_EMPTY
