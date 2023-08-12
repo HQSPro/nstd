@@ -5,19 +5,19 @@
 #include <utility>
 
 #ifdef __cpp_lib_integer_sequence
-#define NSTD_LIB_HAS_INTERGER_SEQUENCE
+#define __NSTD_LIB_HAS_INTERGER_SEQUENCE
 #else
 #include <cstddef>
 #include "type_traits.hpp"
 #endif
 
 #if __cplusplus >= 201703L  // c++17
-#define NSTD_TYPE_HAS_IN_PLACE_T
+#define __NSTD_TYPE_HAS_IN_PLACE_T
 #endif
 
 namespace nstd {
 
-#ifdef NSTD_TYPE_HAS_IN_PLACE_T
+#ifdef __NSTD_TYPE_HAS_IN_PLACE_T
 using std::in_place;
 using std::in_place_index;
 using std::in_place_index_t;
@@ -43,7 +43,7 @@ template <std::size_t I>
 inline constexpr in_place_index_t<I> in_place_index{};
 #endif
 
-#ifdef NSTD_LIB_HAS_INTERGER_SEQUENCE
+#ifdef __NSTD_LIB_HAS_INTERGER_SEQUENCE
 using std::index_sequence;
 using std::index_sequence_for;
 using std::integer_sequence;
@@ -77,7 +77,10 @@ namespace _internal0_impl0_utility {
         : identity<integer_sequence<T, Lhs..., (sizeof...(Lhs) + Rhs)...>> {};
 
     template <typename T, std::size_t N>
-    struct make_integer_sequence_impl : make_integer_sequence_concat<T, make_integer_sequence<T, N / 2>, make_integer_sequence<T, N - (N / 2)>> {};
+    struct make_integer_sequence_impl
+        : make_integer_sequence_concat<T,
+                                       make_integer_sequence<T, N / 2>,
+                                       make_integer_sequence<T, N - (N / 2)>> {};
     template <typename T>
     struct make_integer_sequence_impl<T, 0> : identity<integer_sequence<T>> {};
     template <typename T>
@@ -116,7 +119,8 @@ namespace _internal0_impl1_utility {
     }  // namespace _internal1_impl0_utility
 
     template <typename T, std::size_t N>
-    using make_integer_sequence = typename _internal1_impl0_utility::make_integer_sequence<T, N - 1>::type;
+    using make_integer_sequence =
+        typename _internal1_impl0_utility::make_integer_sequence<T, N - 1>::type;
 
     template <std::size_t N>
     using make_index_sequence = make_integer_sequence<std::size_t, N>;

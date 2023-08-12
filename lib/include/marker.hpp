@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 
+/* if constexpr is a c++17 feature, before c++17, we can't use it.*/
 #if __cplusplus >= 201703L  // c++17
 #define IF_CONSTEXPR if constexpr
 #else
@@ -27,6 +28,5 @@
     } while(0)
 
 #define trait class
-
 
 #endif

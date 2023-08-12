@@ -1,21 +1,21 @@
-#ifndef __NSTD_BUILTIN_HPP__
-#define __NSTD_BUILTIN_HPP__
+#ifndef ___NSTD_BUILTIN_HPP__
+#define ___NSTD_BUILTIN_HPP__
 
 #include <cstddef>
 
 #ifdef __has_builtin
 #if __has_builtin(__type_pack_element) && !(defined(__ICC))
-#define NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
+#define __NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
 #endif
 #endif
 
-#ifndef NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
+#ifndef __NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
 #include "utility.hpp"
 #include "type_traits.hpp"
 #endif
 
 namespace nstd {
-#ifdef NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
+#ifdef __NSTD_BUILTIN_HAS_TYPE_PACK_ELEMENT
 template <std::size_t I, typename... Ts>
 using type_pack_element_t = __type_pack_element<I, Ts...>;
 #else

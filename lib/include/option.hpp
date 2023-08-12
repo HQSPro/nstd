@@ -23,9 +23,15 @@ public:
     constexpr Some(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> v) : value(v) {}
     constexpr Some(Some&& some) : value(std::move(some.value)) {}
     constexpr Some(const Some& some) : value(some.value) {}
-    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> operator*() const { return value; }
+    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> operator*() const
+    {
+        return value;
+    }
     inline constexpr nstd::add_lvalue_reference_t<SomeType> operator*() { return value; }
-    inline constexpr nstd::add_const_t<nstd::add_pointer_t<SomeType>> operator->() const { return &value; }
+    inline constexpr nstd::add_const_t<nstd::add_pointer_t<SomeType>> operator->() const
+    {
+        return &value;
+    }
     inline constexpr nstd::add_pointer_t<SomeType> operator->() { return &value; }
 };
 
@@ -38,16 +44,30 @@ private:
 
 public:
     constexpr Option(nstd::add_rvalue_reference_t<SomeType> some)
-        : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(nstd::in_place_type<Some<SomeType>>, std::forward<SomeType>(some))
+        : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
+                                            nstd::in_place_type<Some<SomeType>>,
+                                            std::forward<SomeType>(some))
     {
     }
     constexpr Option(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> some)
-        : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(nstd::in_place_type<Some<SomeType>>, std::forward<SomeType>(some))
+        : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
+                                            nstd::in_place_type<Some<SomeType>>,
+                                            std::forward<SomeType>(some))
     {
     }
-    constexpr Option() : m_status(OptionStatus::NONE), nstd::variant<Some<SomeType>, None>(std::in_place_type<None>, None{}) {}
-    constexpr Option(const Option<SomeType>& option) : m_status(option.m_status), nstd::variant<Some<SomeType>, None>(option) {}
-    constexpr Option(Option<SomeType>&& option) : m_result(option.m_status), nstd::variant<Some<SomeType>, None>(std::move(option)) {}
+    constexpr Option()
+        : m_status(OptionStatus::NONE), nstd::variant<Some<SomeType>, None>(
+                                            std::in_place_type<None>, None{})
+    {
+    }
+    constexpr Option(const Option<SomeType>& option)
+        : m_status(option.m_status), nstd::variant<Some<SomeType>, None>(option)
+    {
+    }
+    constexpr Option(Option<SomeType>&& option)
+        : m_result(option.m_status), nstd::variant<Some<SomeType>, None>(std::move(option))
+    {
+    }
     inline constexpr OptionStatus status() const { return m_status; }
     inline constexpr operator OptionStatus() const noexcept { return m_status; }
     inline constexpr bool is_some() const noexcept { return OptionStatus::SOME == m_status; }
@@ -60,8 +80,15 @@ class NotNull {
 
 public:
     NotNull(T ptr) : p(ptr) { assert(ptr != nullptr); }
-    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<nstd::remove_pointer_t<T>>> operator*() const { return *p; }
-    inline constexpr nstd::add_lvalue_reference_t<nstd::remove_pointer_t<T>> operator*() { return *p; }
+    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<nstd::remove_pointer_t<T>>>
+    operator*() const
+    {
+        return *p;
+    }
+    inline constexpr nstd::add_lvalue_reference_t<nstd::remove_pointer_t<T>> operator*()
+    {
+        return *p;
+    }
     inline constexpr nstd::add_const_t<T> operator->() const { return p; }
     inline constexpr T operator->() { return p; }
     inline constexpr T get() { return p; }

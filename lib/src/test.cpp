@@ -2,7 +2,10 @@
 
 namespace nstd {
 
-TestGroup::TestGroup(std::string&& n, std::string&& f) : group(std::forward<std::string>(n)), file(std::forward<std::string>(f)) {}
+TestGroup::TestGroup(std::string&& n, std::string&& f)
+    : group(std::forward<std::string>(n)), file(std::forward<std::string>(f))
+{
+}
 TestGroup::TestGroup(const std::string& n, const std::string& f) : group(n), file(f) {}
 
 void TestGroup::add_case(TestKind kind, std::string&& case_name) noexcept;
@@ -10,7 +13,10 @@ void TestGroup::add_case(TestKind kind, std::string&& case_name) noexcept;
     cases.emplace_back(kind, std::forward<std::string>(case_name));
 }
 
-void TestGroup::set_code(std::string&& tests_code) noexcept { code = std::forward<std::string>(tests_code); }
+void TestGroup::set_code(std::string&& tests_code) noexcept
+{
+    code = std::forward<std::string>(tests_code);
+}
 
 const std::string& TestGroup::get_group_name() const noexcept { return group; }
 

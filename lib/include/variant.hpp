@@ -4,18 +4,18 @@
 
 #include "version.hpp"
 #ifdef __cpp_lib_variant
-#define NSTD_LIB_HAS_VARIANT
+#define __NSTD_LIB_HAS_VARIANT
 #endif
 #if(defined(__cpp_lib_variant) && (__cpp_lib_variant >= 202102L))
-#define NSTD_LIB_HAS_VARIANT_VISIT
+#define __NSTD_LIB_HAS_VARIANT_VISIT
 #endif
 
-#ifdef NSTD_LIB_HAS_VARIANT
+#ifdef __NSTD_LIB_HAS_VARIANT
 #include <variant>
 #endif
 
 namespace nstd {
-#ifdef NSTD_LIB_HAS_VARIANT
+#ifdef __NSTD_LIB_HAS_VARIANT
 using std::get;
 using std::monostate;
 using std::variant;
@@ -25,7 +25,7 @@ using std::variant;
 // todo: define the get algorithm.
 #endif
 
-#ifdef NSTD_LIB_HAS_VARIANT_VISIT
+#ifdef __NSTD_LIB_HAS_VARIANT_VISIT
 using std::visit;
 #else
 // todo: define the std::visit for variant.
