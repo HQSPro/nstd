@@ -10,6 +10,7 @@
 #include "type_traits.hpp"
 #include "source_location.hpp"
 #include "self_ref.hpp"
+#include "result.hpp"
 
 namespace nstd {
 
@@ -17,6 +18,7 @@ trait ILogMask;
 class LogType;
 class LogMetaData;
 trait Logger;
+class GlobalLogger;
 
 #define NSTD_NON LogType(LogType::LOG_NON)
 #define NSTD_TRACE LogType(LogType::LOG_TRACE)
@@ -30,12 +32,159 @@ trait Logger;
 
 #define NSTD_LOGGER_TRACE(logger, ...)                                                             \
     do {                                                                                        \
-        LogMetaData md(NSTD_TRACE, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__, ); \
-        if(logger.enabled(md)) { logger.log(md, ); }                                             \
+        LogMetaData md(NSTD_TRACE, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_DEBUG(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_DEBUG, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_INFO(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_INFO, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_WARN(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_WARN, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_ERROR(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_ERROR, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_FATAL(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_FATAL, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_PERF(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_PERF, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+#define NSTD_LOGGER_FUNC(logger, ...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_FUNC, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        if(logger.enabled(md)) { logger.log(std::move(md));}                                             \
+    } while(false)
+
+
+#define NSTD_LOG_TRACE(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_TRACE, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_DEBUG(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_DEBUG, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_INFO(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_INFO, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_WARN(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_WARN, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_ERROR(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_ERROR, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_FATAL(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_FATAL, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_PERF(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_PERF, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
+    } while(false)
+
+#define NSTD_LOG_FUNC(...)                                                             \
+    do {                                                                                        \
+        LogMetaData md(NSTD_FUNC, __NSTD_FILE__, __NSTD_LINE__, __NSTD_FUNC__); \
+        auto logger = GlobalLogger::get_global_logger(); \
+        if(logger != nullptr) \
+        { \
+            if((*logger)->enabled(md)) { (*logger)->log(std::move(md));}                                             \
+        } \
+        else{ \
+            __NSTD_ERROR("No global logget set before using it."); \
+        } \
     } while(false)
 
 #define __PRE_DEFINED_RESERVE_LOG_TYPE_BIT \
-    0x000001FF  // We reserved 16 bits for pre defined log type, but currently, only 9bits are used.
+    0x000001FF  // We reserved 16 bits for pre defined log type, but currently, only 8bits are used.
 #define __NSTD_WARNING(...) do{std::ostringstream buf;buf<<std::left<<std::setw(15)<<"[nstd(Warn)] " <<__NSTD_FILE__<<":"<<__NSTD_LINE__<<". " <<__VA_ARGS__<<"\n";std::cerr<<buf.str();}while(0)
 #define __NSTD_ERROR(...) do{std::ostringstream buf;buf<<std::left<<std::setw(15)<<"[nstd(Error)] " <<__NSTD_FILE__<<":"<<__NSTD_LINE__<<". " <<__VA_ARGS__<<"\n";std::cerr<<buf.str();}while(0)
 
@@ -75,7 +224,11 @@ trait ILogMask
     template<typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool>>
     friend T operator|(const LogType& t1, const T& t2);
     constexpr ILogMask(unsigned int m): mask(m){};
-    virtual ~ILogMask(){}
+    constexpr ILogMask(ILogMask&&) = default;
+    constexpr ILogMask(const ILogMask&) = default;
+    constexpr ILogMask& operator=(ILogMask&&) = default;
+    constexpr ILogMask& operator=(const ILogMask&) = default;
+    virtual ~ILogMask() = default;
     protected:
     unsigned int mask;
 };
@@ -86,18 +239,22 @@ class LogType: virtual public ILogMask
     enum
     {
         LOG_NON   = 0,      // 0bit
-        LOG_TRACE = 1,      // 1bit
-        LOG_DEBUG = 2,      // 2bit
-        LOG_INFO  = 4,      // 3bit
-        LOG_WARN  = 8,      // 4bit
-        LOG_ERROR = 16,     // 5bit
-        LOG_FATAL = 32,     // 6bit
-        LOG_PERF  = 64,     // 7bit
-        LOG_FUNC  = 128,    // 8bit
+        LOG_TRACE = 1,      // 0bit
+        LOG_DEBUG = 2,      // 1bit
+        LOG_INFO  = 4,      // 2bit
+        LOG_WARN  = 8,      // 3bit
+        LOG_ERROR = 16,     // 4bit
+        LOG_FATAL = 32,     // 5bit
+        LOG_PERF  = 64,     // 6bit
+        LOG_FUNC  = 128,    // 7bit
         LOG_RESV  = 32768,  // _PreSetLogType reserve 16 bits.
     };
     constexpr LogType(): ILogMask(LogType::LOG_NON) {};
-    LogType(unsigned int m): ILogMask(m) {};
+    constexpr LogType(unsigned int m): ILogMask(m) {};
+    constexpr LogType(LogType&&) = default;
+    constexpr LogType(const LogType&) = default;
+    constexpr LogType& operator = (LogType&&) = default;
+    constexpr LogType& operator = (const LogType&&) = default;
     virtual const char* c_str()
     {
         switch (mask)
@@ -122,42 +279,40 @@ class LogType: virtual public ILogMask
             return "Func";
         default:
             __NSTD_ERROR("Must chose one type of logging. Current value: "<< std::hex << mask << ".");
-            break;
+            return "";
         }
     }
 };
 
-class ProcStart {
-    static const std::chrono::steady_clock proc_start;
-};
-
 struct LogMetaData {
-    SelfRef<LogType> log_type;
+    template<typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool> = true>
+    constexpr LogMetaData(T lt, std::string&& file_, unsigned int line_, std::string&& func_, std::string&& mod = "", unsigned int col = 0): log_type(nstd::make_self_ref<LogType, T>(lt)), file(std::move(file_)), line(line_), func(std::move(func_)), log_mod(std::move(mod)), colum(col){}
+    nstd::SelfRef<LogType> log_type;
     std::string log_mod;
     std::string file;
     std::string func;
     unsigned int line;
     private:
     unsigned int colum = 0; // Now we can't provide colum. So it' private.
-    template<typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool> = true>
-    LogMetaData(T lt, std::string&& file_, unsigned int line_, std::string&& func_, std::string&& mod = "", unsigned int col = 0): log_type(nstd::make_self_ref<LogType, T>(lt)), file(std::move(file_)), line(line_), func(std::move(func_)), log_mod(std::move(mod)), colum(col){}
 };
 
 trait Logger
 {
 public:
     thread_local static std::ostringstream buf;
+    virtual bool enabled(const LogMetaData&) = 0;
+    virtual nstd::ResultOmitOk<std::string> log(LogMetaData&&) = 0;
 };
 
-#define NSTD_LOG_DEBUG(logger, ...)                                                             \
-    do {                                                                                        \
-        LogMetaData<LogType> md = make_log_meta_data(NSTD_DEBUG, __FILE__, __func__, __LINE__); \
-        if(logger.enable(md))                                                                   \
-        {                                                                                       \
-            logger.buf << __VA_ARGS__;                                                          \
-            logger.log(md);                                                                     \
-        }                                                                                       \
-    } while(false)
+class ProcStart {
+    static const std::chrono::steady_clock proc_start;
+};
+
+class GlobalLogger
+{
+    public:
+    static std::unique_ptr<Logger>* get_global_logger(std::unique_ptr<Logger>&& init = nullptr);
+};
 
 }  // namespace nstd
 

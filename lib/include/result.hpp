@@ -4,6 +4,7 @@
 #include "type_traits.hpp"
 #include "utility.hpp"
 #include "variant.hpp"
+#include "option.hpp"
 
 namespace nstd {
 
@@ -118,6 +119,9 @@ public:
         return Result(ResultStatus::ERR, std::forward<ErrType>(value));
     }
 };
+
+template<typename E>
+using ResultOmitOk = nstd::Result<nstd::monostate, E>;
 
 }  // namespace nstd
 
