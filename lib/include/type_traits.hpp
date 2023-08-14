@@ -32,7 +32,7 @@ constexpr bool is_integral_v = std::is_integral<T>::value;
 #endif
 
 #ifdef __NSTD_TYPE_HAS_ENABLE_IF_T
-using std::is_enable_t;
+using std::enable_if_t;
 #else
 template <bool B, typename T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
