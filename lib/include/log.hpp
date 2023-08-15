@@ -43,7 +43,7 @@ class GlobalLogger;
         buf << std::left << std::setw(15) << "[nstd(Warn)] " << __NSTD_FILE__ << ":" \
             << __NSTD_LINE__ << ". " << __VA_ARGS__ << std::endl;                    \
         std::cerr << buf.str();                                                      \
-    } while(0)
+    } while(false)
 
 #define __NSTD_ERROR(...)                                                             \
     do {                                                                              \
@@ -51,7 +51,7 @@ class GlobalLogger;
         buf << std::left << std::setw(15) << "[nstd(Error)] " << __NSTD_FILE__ << ":" \
             << __NSTD_LINE__ << ". " << __VA_ARGS__ << std::endl;                     \
         std::cerr << buf.str();                                                       \
-    } while(0)
+    } while(false)
 
 #define NSTD_LOGGER(logger, type, ...)                                         \
     do {                                                                       \

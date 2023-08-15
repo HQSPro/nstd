@@ -20,20 +20,21 @@ private:
     OkType value;
 
 public:
-    constexpr Ok(nstd::add_rvalue_reference_t<OkType> v) : value(std::forward<OkType>(v)) {}
+    constexpr Ok(nstd::add_rvalue_reference_t<OkType> v) : value(std::move(v)) {}
     constexpr Ok(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> v) : value(v) {}
     constexpr Ok(Ok&& ok) : value(std::move(ok.value)) {}
     constexpr Ok(const Ok& ok) : value(ok.value) {}
-    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> operator*() const
+    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>>
+    operator*() const noexcept
     {
         return value;
     }
-    inline constexpr nstd::add_lvalue_reference_t<OkType> operator*() { return value; }
-    inline constexpr nstd::add_const_t<nstd::add_pointer_t<OkType>> operator->() const
+    inline constexpr nstd::add_lvalue_reference_t<OkType> operator*() noexcept { return value; }
+    inline constexpr nstd::add_const_t<nstd::add_pointer_t<OkType>> operator->() const noexcept
     {
         return &value;
     }
-    inline constexpr nstd::add_pointer_t<OkType> operator->() { return &value; }
+    inline constexpr nstd::add_pointer_t<OkType> operator->() noexcept { return &value; }
 };
 
 template <typename ErrType>
@@ -42,20 +43,21 @@ private:
     ErrType value;
 
 public:
-    constexpr Err(nstd::add_rvalue_reference_t<ErrType> v) : value(nstd::forward<ErrType>(v)) {}
+    constexpr Err(nstd::add_rvalue_reference_t<ErrType> v) : value(nstd::move(v)) {}
     constexpr Err(nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> v) : value(v) {}
     constexpr Err(Err&& err) : value(std::move(err.value)) {}
     constexpr Err(const Err& err) : value(err.value) {}
-    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> operator*() const
+    inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>>
+    operator*() const noexcept
     {
         return value;
     }
-    inline constexpr nstd::add_lvalue_reference_t<ErrType> operator*() { return value; }
-    inline constexpr nstd::add_const_t<nstd::add_pointer_t<ErrType>> operator->() const
+    inline constexpr nstd::add_lvalue_reference_t<ErrType> operator*() noexcept { return value; }
+    inline constexpr nstd::add_const_t<nstd::add_pointer_t<ErrType>> operator->() const noexcept
     {
         return &value;
     }
-    inline constexpr nstd::add_pointer_t<ErrType> operator->() { return &value; }
+    inline constexpr nstd::add_pointer_t<ErrType> operator->() noexcept { return &value; }
 };
 
 template <typename OkType, typename ErrType>
@@ -65,25 +67,23 @@ private:
 
     constexpr Result(nstd::add_rvalue_reference_t<OkType> ok_value)
         : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(
-                                          nstd::in_place_type<Ok<OkType>>,
-                                          std::forward<OkType>(ok_value))
+                                          nstd::in_place_type<Ok<OkType>>, std::move(ok_value))
     {
     }
     constexpr Result(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> ok_value)
         : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(
-                                          nstd::in_place_type<Ok<OkType>>,
-                                          std::forward<OkType>(ok_value))
+                                          nstd::in_place_type<Ok<OkType>>, ok_value)
     {
     }
     constexpr Result(ResultStatus s, nstd::add_rvalue_reference_t<ErrType> err_value)
         : m_status(s), nstd::variant<Ok<OkType>, Err<ErrType>>(nstd::in_place_type<Err<ErrType>>,
-                                                               std::forward<ErrType>(err_value))
+                                                               std::move(err_value))
     {
     }
     constexpr Result(ResultStatus s,
                      nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> err_value)
         : m_status(s), nstd::variant<Ok<OkType>, Err<ErrType>>(nstd::in_place_type<Err<ErrType>>,
-                                                               std::forward<ErrType>(err_value))
+                                                               err_value)
     {
     }
 

@@ -23,14 +23,14 @@ public:
     {
         return ref;
     }
-    inline constexpr nstd::add_lvalue_reference_t<B> operator*() { return ref; }
-    inline constexpr nstd::add_const_t<nstd::add_pointer_t<B>> operator->() const { return &ref; }
-    inline constexpr nstd::add_pointer_t<B> operator->() { return &ref; }
+    inline constexpr nstd::add_lvalue_reference_t<B> operator*() noexcept { return ref; }
+    inline constexpr nstd::add_const_t<nstd::add_pointer_t<B>> operator->() const noexcept { return &ref; }
+    inline constexpr nstd::add_pointer_t<B> operator->() noexcept { return &ref; }
 };
-template <typename B, typename D>
-constexpr SelfRef<B> make_self_ref(const D&& v)
+template <typename B, typename D, typename... Args>
+constexpr SelfRef<B> make_self_ref(Args&&... args)
 {
-    return SelfRef<B>(nstd::in_place_type_t<D>{}, std::forward<const D>(v));
+    return SelfRef<B>(nstd::in_place_type_t<D>{}, std::forward<Args>(args)...);
 }
 }  // namespace nstd
 
