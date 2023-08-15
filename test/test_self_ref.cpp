@@ -4,7 +4,6 @@
 
 int main()
 {
-        auto i = nstd::make_self_ref<int, int>(1);
-        std::cout<<*i<<std::endl;
+    auto i = nstd::make_self_ref<int, int>(1);
+    std::cout << *i << std::endl;
 }
-

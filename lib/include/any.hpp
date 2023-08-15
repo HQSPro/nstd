@@ -8,18 +8,16 @@
 #endif
 
 #ifdef __NSTD_LIB_HAS_ANY
-#include <any>    // require c++17
+#include <any>  // require c++17
 #endif
 
-namespace nstd
-{
-    #ifdef __NSTD_LIB_HAS_ANY
-    using std::any;
-    using std::any_cast;
-    #else
-    // todo: Impl any and any_cast
-    #endif
-}
-
+namespace nstd {
+#ifdef __NSTD_LIB_HAS_ANY
+using std::any;
+using std::any_cast;
+#else
+// todo: Impl any and any_cast
+#endif
+}  // namespace nstd
 
 #endif

@@ -120,7 +120,7 @@ public:
     }
 };
 
-template<typename E>
+template <typename E>
 using ResultOmitOk = nstd::Result<nstd::monostate, E>;
 
 }  // namespace nstd
