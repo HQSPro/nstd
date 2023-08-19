@@ -3,7 +3,7 @@
 
 namespace nstd {
 const std::chrono::steady_clock ProcStart::proc_start = std::chrono::steady_clock::now();
-thread_local std::ostringstream Logger::buf           = std::ostringstream{};
+thread_local std::stringstream Logger::buf;
 std::mutex GlobalLogger::mtx;
 std::shared_ptr<Logger> GlobalLogger::glogger;
 LogResult GlobalLogger::add_logger(std::shared_ptr<Logger> plogger) noexcept

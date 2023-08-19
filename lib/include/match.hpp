@@ -23,17 +23,15 @@ namespace _internal0_impl0_match_helper {
 }  // namespace _internal0_impl0_match_helper
 
 template <typename... Vs, typename... Funcs>
-constexpr decltype(auto) match(nstd::variant<Vs...>&& v, Funcs&&... funcs)
+decltype(auto) match(nstd::variant<Vs...>&& v, Funcs&&... funcs)
 {
-    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...},
-                       std::forward<nstd::variant<Vs...>>(v));
+    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...}, std::move(v));
 }
 
 template <typename... Vs, typename... Funcs>
-constexpr decltype(auto) match(const nstd::variant<Vs...>& v, Funcs&&... funcs)
+decltype(auto) match(const nstd::variant<Vs...>& v, Funcs&&... funcs)
 {
-    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...},
-                       std::forward<nstd::variant<Vs...>>(v));
+    return nstd::visit(_internal0_impl0_match_helper::MatchHelper{funcs...}, v);
 }
 
 /* The second implementations of MATCH like rust.

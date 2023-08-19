@@ -62,6 +62,7 @@ class GlobalLogger;
             {                                                                  \
                 logger.get_buf() << __VA_ARGS__ << std::endl;                  \
                 logger.log(std::move(md));                                     \
+                std::stringstream().swap(logger.get_buf());                    \
             }                                                                  \
         }                                                                      \
         catch(const std::exception& e)                                         \
@@ -87,6 +88,7 @@ class GlobalLogger;
                     {                                                                           \
                         logger.get_buf() << __VA_ARGS__ << std::endl;                           \
                         logger->log(std::move(md));                                             \
+                        std::stringstream().swap(logger.get_buf());                             \
                     }                                                                           \
                 }                                                                               \
             }                                                                                   \
@@ -117,47 +119,133 @@ class GlobalLogger;
 #define NSTD_LOG_FUNC(...) NSTD_LOG(NSTD_FUNC, __VA_ARGS__)
 
 // We reserved 16 bits for pre defined log type, but currently, only 8bits are used.
-#define __PRE_DEFINED_RESERVE_LOG_TYPE_BIT 0x000001FF
+#define __PRE_DEFINED_RESERVE_LOG_TYPE_BIT 0x000000FF
 
-template <typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool> = true>
-T operator&(const LogType& t1, const T& t2) noexcept
+template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool> = true,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool> = true>
+T1 operator&(const T1& t1, const T2& t2) noexcept
 {
-    if(dynamic_cast<const T*>(&t1) != nullptr) { return T{t1.mask & t2.mask}; }
+    if(dynamic_cast<const T2*>(&t1) != nullptr) { return T1{t1.mask & t2.mask}; }
     else
     {
         __NSTD_WARNING(
             "There is conflict within log types. Will use the predefined log type only. Log type "
             << typeid(t1).name() << " conflict with log type " << typeid(t2).name() << ".");
-        T{t1.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT & t2.mask};
+        return T1{t1.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT & t2.mask};
     }
 }
 
-template <typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool> = true>
-T operator|(const LogType& t1, const T& t2) noexcept
+template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool> = true,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool> = true>
+T1 operator|(const T1& t1, const T2& t2) noexcept
 {
-    if(dynamic_cast<const T*>(&t1) != nullptr) { return T{t1.mask | t2.mask}; }
+    if(dynamic_cast<const T2*>(&t1) != nullptr) { return T1{t1.mask | t2.mask}; }
     else
     {
         __NSTD_WARNING(
-            "There is conflict within log types. Will use the incoming log type only. Log type "
+            "There is conflict within log types. Will use the current log type only. Log type "
             << typeid(t1).name() << " conflict with log type " << typeid(t2).name() << ".");
-        T{t1.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT | t2.mask};
+        return T1{t1.mask | (t2.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT)};
+    }
+}
+
+template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool> = true,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool> = true>
+T1& operator|=(T1& t1, const T2& t2) noexcept
+{
+    if(dynamic_cast<const T2*>(&t1) != nullptr)
+    {
+        t1.mask |= t2.mask;
+        return t1;
+    }
+    else
+    {
+        __NSTD_WARNING(
+            "There is conflict within log types. Will use the current log type only. Log type "
+            << typeid(t1).name() << " conflict with log type " << typeid(t2).name() << ".");
+        t1.mask |= (t2.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT);
+        return t1;
+    }
+}
+
+template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool> = true,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool> = true>
+T1&& operator|=(T1&& t1, const T2& t2) noexcept
+{
+    if(dynamic_cast<const T2*>(&t1) != nullptr)
+    {
+        t1.mask |= t2.mask;
+        return t1;
+    }
+    else
+    {
+        __NSTD_WARNING(
+            "There is conflict within log types. Will use the current log type only. Log type "
+            << typeid(t1).name() << " conflict with log type " << typeid(t2).name() << ".");
+        t1.mask |= (t2.mask & __PRE_DEFINED_RESERVE_LOG_TYPE_BIT);
+        return t1;
+    }
+}
+
+template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool> = true,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool> = true>
+bool operator==(const T1& t1, const T2& t2) noexcept
+{
+    if(dynamic_cast<const T2*>(&t1) != nullptr) { return t1.mask == t2.mask; }
+    else
+    {
+        __NSTD_WARNING("There is conflict within log types. Will compare them anyway. Log type "
+                       << typeid(t1).name() << " conflict with log type " << typeid(t2).name()
+                       << ".");
+        return t1.mask == t2.mask;
     }
 }
 
 trait ILogMask
 {
 public:
-    template <typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool>>
-    friend T operator&(const LogType& t1, const T& t2) noexcept;
-    template <typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool>>
-    friend T operator|(const LogType& t1, const T& t2) noexcept;
+    template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool>,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool>>
+    friend T1 operator&(const T1& t1, const T2& t2) noexcept;
+    template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool>,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool>>
+    friend T1 operator|(const T1& t1, const T2& t2) noexcept;
+    template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool>,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool>>
+    friend T1& operator|=(T1& t1, const T2& t2) noexcept;
+    template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool>,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool>>
+    friend T1&& operator|=(T1&& t1, const T2& t2) noexcept
+    template <typename T1,
+          typename T2,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T1>, bool>,
+          nstd::enable_if_t<nstd::is_base_of_v<LogType, T2>, bool>>
+    friend bool operator==(const T1& t1, const T2& t2) noexcept;
     constexpr ILogMask(unsigned int m) : mask(m){};
     constexpr ILogMask(ILogMask &&)                = default;
     constexpr ILogMask(const ILogMask&)            = default;
     constexpr ILogMask& operator=(ILogMask&&)      = default;
     constexpr ILogMask& operator=(const ILogMask&) = default;
     virtual ~ILogMask()                            = default;
+    virtual unsigned int mask() const noexcept { return mask; }
 
 protected:
     unsigned int mask;
@@ -184,7 +272,7 @@ public:
     constexpr LogType(const LogType&)             = default;
     constexpr LogType& operator=(LogType&&)       = default;
     constexpr LogType& operator=(const LogType&&) = default;
-    virtual const char* c_str()
+    virtual const char* c_str() noexcept
     {
         switch(mask)
         {
@@ -207,12 +295,12 @@ public:
 
 struct LogMetaData {
     template <typename T, nstd::enable_if_t<nstd::is_base_of_v<LogType, T>, bool> = true>
-    constexpr LogMetaData(T lt,
-                          std::string&& file_,
-                          unsigned int line_,
-                          std::string&& func_,
-                          std::string&& mod = "",
-                          unsigned int col  = 0)
+    LogMetaData(T lt,
+                std::string&& file_,
+                unsigned int line_,
+                std::string&& func_,
+                std::string&& mod = "",
+                unsigned int col  = 0)
         : log_type(nstd::make_self_ref<LogType, T>(lt)), file(std::move(file_)), line(line_),
           func(std::move(func_)), log_mod(std::move(mod)), colum(col)
     {
@@ -230,10 +318,10 @@ private:
 trait Logger
 {
 protected:
-    thread_local static std::ostringstream buf;
+    thread_local static std::stringstream buf;
 
 public:
-    virtual std::ostringstream& get_buf() { return buf; }
+    virtual std::stringstream& get_buf() { return buf; }
     virtual bool enabled(const LogMetaData&) = 0;
     virtual LogResult log(LogMetaData &&)    = 0;
 };

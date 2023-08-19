@@ -19,10 +19,12 @@ private:
     SomeType value;
 
 public:
-    constexpr Some(nstd::add_rvalue_reference_t<SomeType> v) : value(std::move(v)) {}
-    constexpr Some(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> v) : value(v) {}
-    constexpr Some(Some&& some) : value(std::move(some.value)) {}
-    constexpr Some(const Some& some) : value(some.value) {}
+    Some(nstd::add_rvalue_reference_t<SomeType> v) : value(std::move(v)) {}
+    Some(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> v) : value(v) {}
+    Some(Some<SomeType>&& some) : value(std::move(some.value)) {}
+    Some(const Some<SomeType>& some) : value(some.value) {}
+    Some<SomeType>& operator=(Some<SomeType>&&)      = default;
+    Some<SomeType>& operator=(const Some<SomeType>&) = default;
     inline constexpr nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>>
     operator*() const noexcept
     {
@@ -44,29 +46,32 @@ private:
     OptionStatus m_status;
 
 public:
-    constexpr Option(nstd::add_rvalue_reference_t<SomeType> some)
+    Option(nstd::add_rvalue_reference_t<SomeType> some)
         : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
                                             nstd::in_place_type<Some<SomeType>>, std::move(some))
     {
     }
-    constexpr Option(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> some)
+    Option(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> some)
         : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
                                             nstd::in_place_type<Some<SomeType>>, some)
     {
     }
-    constexpr Option()
+    Option()
         : m_status(OptionStatus::NONE), nstd::variant<Some<SomeType>, None>(
                                             std::in_place_type<None>, None{})
     {
     }
-    constexpr Option(const Option<SomeType>& option)
+    Option(const Option<SomeType>& option)
         : m_status(option.m_status), nstd::variant<Some<SomeType>, None>(option)
     {
     }
-    constexpr Option(Option<SomeType>&& option)
+    Option(Option<SomeType>&& option)
         : m_result(option.m_status), nstd::variant<Some<SomeType>, None>(std::move(option))
     {
     }
+    Option<SomeType>& operator=(Option<SomeType>&&)      = default;
+    Option<SomeType>& operator=(const Option<SomeType>&) = default;
+
     inline constexpr OptionStatus status() const noexcept { return m_status; }
     inline constexpr operator OptionStatus() const noexcept { return m_status; }
     inline constexpr bool is_some() const noexcept { return OptionStatus::SOME == m_status; }
@@ -90,6 +95,17 @@ public:
     }
     inline constexpr nstd::add_const_t<T> operator->() const noexcept { return p; }
     inline constexpr T operator->() noexcept { return p; }
+    inline constexpr T get() noexcept { return p; }
+};
+
+class MayNull;
+
+template <typename T, nstd::enable_if_t<nstd::is_pointer_v<T>, bool> = true>
+class MayNull {
+    T p;
+
+public:
+    MayNull(T ptr) : p(ptr) {}
     inline constexpr T get() noexcept { return p; }
 };
 
