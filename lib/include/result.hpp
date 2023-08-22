@@ -8,7 +8,7 @@
 
 namespace nstd {
 
-enum ResultStatus
+enum class ResultStatus
 {
     OK = 0,
     ERR,
@@ -68,7 +68,7 @@ template <typename OkType, typename ErrType>
 class Result : nstd::variant<Ok<OkType>, Err<ErrType>> {
 private:
     ResultStatus m_status;
-
+public:
     Result(nstd::add_rvalue_reference_t<OkType> ok_value)
         : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(
                                           nstd::in_place_type<Ok<OkType>>, std::move(ok_value))
@@ -107,26 +107,43 @@ public:
     inline constexpr operator ResultStatus() const noexcept { return m_status; }
     inline static Result<OkType, ErrType> ok(nstd::add_rvalue_reference_t<OkType> value)
     {
-        return Result(std::forward<OkType>(value));
+        return Result(std::move(value));
     }
     inline static Result<OkType, ErrType>
     ok(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> value)
     {
-        return Result(std::forward<OkType>(value));
+        return Result(value);
+    }
+    template<typename... Args>
+    inline static ok(Args&&... args)
+    {
+        return Result(OkType{std::forward<Args>(args)...});
     }
     inline static Result<OkType, ErrType> err(nstd::add_rvalue_reference_t<ErrType> value)
     {
-        return Result(ResultStatus::ERR, std::forward<ErrType>(value));
+        return Result(ResultStatus::ERR, std::move(value));
     }
     inline static Result<OkType, ErrType>
     err(nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> value)
     {
-        return Result(ResultStatus::ERR, std::forward<ErrType>(value));
+        return Result(ResultStatus::ERR, value);
+    }
+    template<typename... Args>
+    inline static err(Args&&... args)
+    {
+        return Result(ResultStatus::ERR, ErrType{std::forward<Args>(args)...});
     }
 };
 
 template <typename E>
 using ResultOmitOk = nstd::Result<nstd::monostate, E>;
+
+struct Error
+{
+    virtual void context() = 0;
+    virtual nstd::Option<std::shared_ptr<Error>> source() {return {};}
+    virtual std::ostream& display(std::ostream&) = 0;
+};
 
 }  // namespace nstd
 

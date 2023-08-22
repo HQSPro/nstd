@@ -2,12 +2,14 @@
 #ifndef __NSTD_LOG_HPP__
 #define __NSTD_LOG_HPP__
 
-#include <iomanip>
-#include <iostream>
 #include <cstddef>
-#include <chrono>
 #include <memory>
+#include <string>
 #include <map>
+#include <iomanip>
+#include <sstream>
+#include <iostream>
+#include <chrono>
 #include "marker.hpp"
 #include "type_traits.hpp"
 #include "source_location.hpp"
@@ -324,6 +326,7 @@ public:
     virtual std::stringstream& get_buf() { return buf; }
     virtual bool enabled(const LogMetaData&) = 0;
     virtual LogResult log(LogMetaData &&)    = 0;
+    virtual void flush() noexcept   = 0;
 };
 
 struct ProcStart {
