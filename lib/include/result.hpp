@@ -8,6 +8,11 @@
 
 namespace nstd {
 
+struct Display
+{
+    std::ostream& display(std::ostream&);
+};
+
 enum class ResultStatus
 {
     OK = 0,
@@ -20,8 +25,10 @@ private:
     OkType value;
 
 public:
-    Ok(nstd::add_rvalue_reference_t<OkType> v) : value(std::move(v)) {}
-    Ok(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> v) : value(v) {}
+    template<typename... Args>
+    Ok(Args&&... args): value(std::forward<Args>(args)...)
+    {
+    }
     Ok(Ok<OkType>&& ok) : value(std::move(ok.value)) {}
     Ok(const Ok<OkType>& ok) : value(ok.value) {}
     Ok<OkType>& operator=(Ok<OkType>&&)      = default;
@@ -45,8 +52,10 @@ private:
     ErrType value;
 
 public:
-    Err(nstd::add_rvalue_reference_t<ErrType> v) : value(nstd::move(v)) {}
-    Err(nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> v) : value(v) {}
+    template<typename... Args>
+    Err(Args&&... args): value(std::forward<Args>(args)...)
+    {
+    }
     Err(Err<ErrType>&& err) : value(std::move(err.value)) {}
     Err(const Err<ErrType>& err) : value(err.value) {}
     Err<ErrType>& operator=(Err<ErrType>&&)      = default;
@@ -69,23 +78,21 @@ class Result : nstd::variant<Ok<OkType>, Err<ErrType>> {
 private:
     ResultStatus m_status;
 public:
-    Result(nstd::add_rvalue_reference_t<OkType> ok_value)
+    Result(nstd::Ok<OkType>&& ok_value)
         : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(
-                                          nstd::in_place_type<Ok<OkType>>, std::move(ok_value))
+                                          std::move(ok_value))
     {
     }
-    Result(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> ok_value)
-        : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(
-                                          nstd::in_place_type<Ok<OkType>>, ok_value)
+    Result(const nstd::Ok<OkType>& ok_value)
+        : m_status(ResultStatus::OK), nstd::variant<Ok<OkType>, Err<ErrType>>(ok_value)
     {
     }
-    Result(ResultStatus s, nstd::add_rvalue_reference_t<ErrType> err_value)
-        : m_status(s), nstd::variant<Ok<OkType>, Err<ErrType>>(nstd::in_place_type<Err<ErrType>>,
-                                                               std::move(err_value))
+    Result(nstd::Err<ErrType>&& err_value)
+        : m_status(ResultStatus::ERR), nstd::variant<Ok<OkType>, Err<ErrType>>(std::move(err_value))
     {
     }
-    Result(ResultStatus s, nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> err_value)
-        : m_status(s), nstd::variant<Ok<OkType>, Err<ErrType>>(nstd::in_place_type<Err<ErrType>>,
+    Result(const nstd::Err<ErrType>& err_value)
+        : m_status(ResultStatus::ERR), nstd::variant<Ok<OkType>, Err<ErrType>>(
                                                                err_value)
     {
     }
@@ -105,33 +112,15 @@ public:
     inline constexpr bool is_ok() const noexcept { return ResultStatus::OK == m_status; }
     inline constexpr bool is_err() const noexcept { return ResultStatus::ERR == m_status; }
     inline constexpr operator ResultStatus() const noexcept { return m_status; }
-    inline static Result<OkType, ErrType> ok(nstd::add_rvalue_reference_t<OkType> value)
-    {
-        return Result(std::move(value));
-    }
-    inline static Result<OkType, ErrType>
-    ok(nstd::add_const_t<nstd::add_lvalue_reference_t<OkType>> value)
-    {
-        return Result(value);
-    }
     template<typename... Args>
     inline static ok(Args&&... args)
     {
-        return Result(OkType{std::forward<Args>(args)...});
-    }
-    inline static Result<OkType, ErrType> err(nstd::add_rvalue_reference_t<ErrType> value)
-    {
-        return Result(ResultStatus::ERR, std::move(value));
-    }
-    inline static Result<OkType, ErrType>
-    err(nstd::add_const_t<nstd::add_lvalue_reference_t<ErrType>> value)
-    {
-        return Result(ResultStatus::ERR, value);
+        return Result(Ok<OkType>(std::forward<Args>(args)...));
     }
     template<typename... Args>
     inline static err(Args&&... args)
     {
-        return Result(ResultStatus::ERR, ErrType{std::forward<Args>(args)...});
+        return Result(Err<ErrType>(std::forward<Args>(args)...));
     }
 };
 

@@ -19,8 +19,10 @@ private:
     SomeType value;
 
 public:
-    Some(nstd::add_rvalue_reference_t<SomeType> v) : value(std::move(v)) {}
-    Some(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> v) : value(v) {}
+    template<typename... Args>
+    Some(Args&&... args): value(std::forward<Args>(args)...)
+    {
+    }
     Some(Some<SomeType>&& some) : value(std::move(some.value)) {}
     Some(const Some<SomeType>& some) : value(some.value) {}
     Some<SomeType>& operator=(Some<SomeType>&&)      = default;
@@ -46,12 +48,12 @@ private:
     OptionStatus m_status;
 
 public:
-    Option(nstd::add_rvalue_reference_t<SomeType> some)
+    Option(Some<SomeType>&& some)
         : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
                                             nstd::in_place_type<Some<SomeType>>, std::move(some))
     {
     }
-    Option(nstd::add_const_t<nstd::add_lvalue_reference_t<SomeType>> some)
+    Option(const Some<SomeType>& some)
         : m_status(OptionStatus::SOME), nstd::variant<Some<SomeType>, None>(
                                             nstd::in_place_type<Some<SomeType>>, some)
     {
@@ -71,6 +73,11 @@ public:
     }
     Option<SomeType>& operator=(Option<SomeType>&&)      = default;
     Option<SomeType>& operator=(const Option<SomeType>&) = default;
+    tempalte<typename... Args>
+    inline static Option<SomeType> some(Args&&... args)
+    {
+        return Option<SomeType>(Some<SomeType>(std::forward<Args>(args)...));
+    }
 
     inline constexpr OptionStatus status() const noexcept { return m_status; }
     inline constexpr operator OptionStatus() const noexcept { return m_status; }

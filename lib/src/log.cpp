@@ -20,7 +20,7 @@ LogResult GlobalLogger::add_logger(std::shared_ptr<Logger> plogger) noexcept
             }
             else { return LogResult::err("Lock global logger failed."); }
         }
-        else { return LogResult::ok(std::monostate{}); }
+        else { return LogResult::ok(); }
     }
     catch(const std::exception& e)
     {
@@ -37,7 +37,7 @@ LogResult GlobalLogger::remove_logger(std::shared_ptr<Logger> plogger) noexcept
         {
             auto iter = std::find(std::size_t(plogger.get()));
             if(iter != glogger.end()) { glogger.erase(iter); }
-            else { return LogResult::ok(std::monostate{}); }
+            else { return LogResult::ok(); }
         }
         else { return LogResult::err("Lock global logger failed."); }
     }
