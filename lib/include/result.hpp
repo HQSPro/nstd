@@ -1,17 +1,14 @@
 #ifndef __NSTD_RESULT_HPP__
 #define __NSTD_RESULT_HPP__
 
+#include <memory>
+#include <sstream>
 #include "type_traits.hpp"
 #include "utility.hpp"
 #include "variant.hpp"
 #include "option.hpp"
 
 namespace nstd {
-
-struct Display
-{
-    std::ostream& display(std::ostream&);
-};
 
 enum class ResultStatus
 {
@@ -126,13 +123,6 @@ public:
 
 template <typename E>
 using ResultOmitOk = nstd::Result<nstd::monostate, E>;
-
-struct Error
-{
-    virtual void context() = 0;
-    virtual nstd::Option<std::shared_ptr<Error>> source() {return {};}
-    virtual std::ostream& display(std::ostream&) = 0;
-};
 
 }  // namespace nstd
 
